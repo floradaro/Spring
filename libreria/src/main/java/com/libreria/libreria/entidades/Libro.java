@@ -5,10 +5,12 @@
  */
 package com.libreria.libreria.entidades;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import org.hibernate.annotations.GenericGenerator;
 
 /**
@@ -23,7 +25,10 @@ public class Libro {
     @GenericGenerator(name = "uuid", strategy = "uuid2")
     private String id;
     private Long isbn;
+    
+    @Column (unique = true)
     private String titulo;
+    
     private Integer anio;
     private Integer ejemplares;
     private Integer ejemplaresPrestados;
@@ -36,10 +41,13 @@ public class Libro {
     @ManyToOne // muchos libros para una editorial
     private Editorial editorial;
 
+    @OneToOne
+    private Foto foto;
+    
     public Libro() {
     }
 
-    public Libro(String id, Long isbn, String titulo, Integer anio, Integer ejemplares, Integer ejemplaresPrestados, Integer ejemplaresRestantes, Boolean alta, Autor autor, Editorial editorial) {
+    public Libro(String id, Long isbn, String titulo, Integer anio, Integer ejemplares, Integer ejemplaresPrestados, Integer ejemplaresRestantes, Boolean alta, Autor autor, Editorial editorial, Foto foto) {
         this.id = id;
         this.isbn = isbn;
         this.titulo = titulo;
@@ -50,7 +58,10 @@ public class Libro {
         this.alta = alta;
         this.autor = autor;
         this.editorial = editorial;
+        this.foto = foto;
     }
+
+    
 
     public String getId() {
         return id;
@@ -132,6 +143,15 @@ public class Libro {
         this.editorial = editorial;
     }
 
+    public Foto getFoto() {
+        return foto;
+    }
+
+    public void setFoto(Foto foto) {
+        this.foto = foto;
+    }
+
+    
     @Override
     public String toString() {
         return "Libro{" + "id=" + getId() + ", isbn=" + getIsbn() + ", titulo=" + getTitulo() + ", anio=" + getAnio() + ", ejemplares=" + getEjemplares() + ", ejemplaresPrestados=" + getEjemplaresPrestados() + ", ejemplaresRestantes=" + getEjemplaresRestantes() + ", alta=" + getAlta() + ", autor=" + getAutor() + ", editorial=" + getEditorial() + '}';

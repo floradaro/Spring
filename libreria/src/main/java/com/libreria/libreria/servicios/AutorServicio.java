@@ -6,11 +6,14 @@
 package com.libreria.libreria.servicios;
 
 import com.libreria.libreria.entidades.Autor;
+import com.libreria.libreria.entidades.Foto;
 import com.libreria.libreria.excepciones.Excepciones;
 import com.libreria.libreria.repositorios.AutorRepositorio;
 import java.util.Optional;
+import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  *
@@ -22,7 +25,11 @@ public class AutorServicio {
     @Autowired
     private AutorRepositorio autorRepositorio;
 
-    public void crearAutor(String nombre, boolean alta) throws Excepciones {
+    @Autowired
+    private FotoServicio fotoServicio;
+    
+  @Transactional
+    public void crearAutor(MultipartFile archivo, String nombre, boolean alta) throws Excepciones {
 
         validarAutorNombre(nombre);
 
@@ -30,10 +37,14 @@ public class AutorServicio {
         autor.setNombre(nombre);
         autor.setAlta(true);
 
+        Foto foto = fotoServicio.guardar(archivo);
+        autor.setFoto(foto);
+
         autorRepositorio.save(autor);
     }
 
-    public void modificarAutor(String id, String nombre) throws Excepciones {
+      @Transactional
+    public void modificarAutor(MultipartFile archivo, String id, String nombre) throws Excepciones {
 
         validarAutorNombre(nombre);
 
@@ -43,8 +54,15 @@ public class AutorServicio {
             Autor autor = respuesta.get();
             autor.setNombre(nombre);
 
+            String idFoto = null;
+            if (autor.getFoto() != null) {
+                idFoto = autor.getFoto().getId();
+            }
+            Foto foto = fotoServicio.actualizar(idFoto, archivo);
+            autor.setFoto(foto);
+
             autorRepositorio.save(autor);
-        }else{
+        } else {
             throw new Excepciones("No se encontró el nombre del Autor");
         }
     }
@@ -55,16 +73,17 @@ public class AutorServicio {
             throw new Excepciones("El nombre del autor no puede ser nulo");
         }
     }
-    
-      private void validarAutorId(String id) throws Excepciones {
 
-        if (id== null || id.isEmpty()) {
+    private void validarAutorId(String id) throws Excepciones {
+
+        if (id == null || id.isEmpty()) {
             throw new Excepciones("El nombre del autor no puede ser nulo");
         }
     }
-    
-    private void darDeBajaAutor (String id) throws Excepciones{
-        
+
+      @Transactional
+    private void darDeBajaAutor(String id) throws Excepciones {
+
         validarAutorId(id);
         Optional<Autor> respuesta = autorRepositorio.findById(id);
         if (respuesta.isPresent()) {
@@ -73,33 +92,33 @@ public class AutorServicio {
             autor.setAlta(false);
 
             autorRepositorio.save(autor);
-        }else{
+        } else {
             throw new Excepciones("No se encontró el id del Autor");
         }
     }
-    
-    private void buscarAutorId (String id) throws Excepciones{
-      
+
+    private void buscarAutorId(String id) throws Excepciones {
+
         validarAutorId(id);
-       Optional<Autor> respuesta = autorRepositorio.findById(id);
-       if (respuesta.isPresent()) {
+        Optional<Autor> respuesta = autorRepositorio.findById(id);
+        if (respuesta.isPresent()) {
 
             Autor autor = respuesta.get();
             autor.getNombre();
 
-        }else{
+        } else {
             throw new Excepciones("No se encontró el id del Autor");
         }
     }
-    
-    private void buscarAutornombre (String nombre) throws Excepciones{
-      
+
+    private void buscarAutornombre(String nombre) throws Excepciones {
+
         validarAutorNombre(nombre);
-       Optional<Autor> respuesta = autorRepositorio.findById(nombre);
-       if (respuesta.isPresent()) {
+        Optional<Autor> respuesta = autorRepositorio.findById(nombre);
+        if (respuesta.isPresent()) {
             Autor autor = respuesta.get();
             autor.getNombre();
-        }else{
+        } else {
             throw new Excepciones("No se encontró el nombre del Autor");
         }
     }

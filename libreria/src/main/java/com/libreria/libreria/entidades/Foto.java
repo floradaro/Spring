@@ -5,40 +5,40 @@
  */
 package com.libreria.libreria.entidades;
 
-import javax.persistence.Column;
+import javax.persistence.Basic;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.OneToOne;
-import org.hibernate.annotations.GenericGenerator;
+import javax.persistence.Lob;
+
 
 /**
  *
  * @author flora
  */
 @Entity
-public class Editorial {
-
+public class Foto {
+    
     @Id
     @GeneratedValue(generator = "uuid")
-    @GenericGenerator(name = "uuid", strategy = "uuid2")
+//    @GenericGenerator(name = "uuid", strategy = "uudd2")
     private String id;
-
-    @Column
+    
     private String nombre;
-    private Boolean alta;
+    private String mime;
+    
+    @Lob @Basic(fetch = FetchType.LAZY)
+    private byte[] contenido;
 
-    @OneToOne
-    private Foto foto;
-
-    public Editorial() {
+    public Foto() {
     }
 
-    public Editorial(String id, String nombre, Boolean alta, Foto foto) {
+    public Foto(String id, String nombre, String mime, byte[] contenido) {
         this.id = id;
         this.nombre = nombre;
-        this.alta = alta;
-        this.foto = foto;
+        this.mime = mime;
+        this.contenido = contenido;
     }
 
     public String getId() {
@@ -57,25 +57,26 @@ public class Editorial {
         this.nombre = nombre;
     }
 
-    public Boolean getAlta() {
-        return alta;
+    public String getMime() {
+        return mime;
     }
 
-    public void setAlta(Boolean alta) {
-        this.alta = alta;
+    public void setMime(String mime) {
+        this.mime = mime;
     }
 
-    public Foto getFoto() {
-        return foto;
+    public byte[] getContenido() {
+        return contenido;
     }
 
-    public void setFoto(Foto foto) {
-        this.foto = foto;
+    public void setContenido(byte[] contenido) {
+        this.contenido = contenido;
     }
 
     @Override
     public String toString() {
-        return "Editorial{" + "id=" + getId() + ", nombre=" + getNombre() + ", alta=" + getAlta() + '}';
+        return "Foto{" + "id=" + id + ", nombre=" + nombre + ", mime=" + mime + ", contenido=" + contenido + '}';
     }
-
+    
+    
 }

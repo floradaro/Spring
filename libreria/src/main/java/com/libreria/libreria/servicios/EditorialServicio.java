@@ -6,11 +6,14 @@
 package com.libreria.libreria.servicios;
 
 import com.libreria.libreria.entidades.Editorial;
+import com.libreria.libreria.entidades.Foto;
 import com.libreria.libreria.excepciones.Excepciones;
 import com.libreria.libreria.repositorios.EditorialRepositorio;
 import java.util.Optional;
+import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  *
@@ -18,11 +21,15 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class EditorialServicio {
-    
-     @Autowired
+
+    @Autowired
     private EditorialRepositorio editorialRepositorio;
-     
-     public void crearEditorial(String nombre, boolean alta) throws Excepciones {
+
+    @Autowired
+    private FotoServicio fotoServicio;
+
+      @Transactional
+    public void crearEditorial(MultipartFile archivo, String nombre, boolean alta) throws Excepciones {
 
         validarEditorialNombre(nombre);
 
@@ -30,10 +37,14 @@ public class EditorialServicio {
         editorial.setNombre(nombre);
         editorial.setAlta(true);
 
+        Foto foto = fotoServicio.guardar(archivo);
+        editorial.setFoto(foto);
+
         editorialRepositorio.save(editorial);
     }
 
-    public void modificarEditorial(String id, String nombre) throws Excepciones {
+      @Transactional
+    public void modificarEditorial(MultipartFile archivo, String id, String nombre) throws Excepciones {
 
         validarEditorialNombre(nombre);
 
@@ -43,8 +54,16 @@ public class EditorialServicio {
             Editorial editorial = respuesta.get();
             editorial.setNombre(nombre);
 
+            String idFoto = null;
+            if (editorial.getFoto() != null) {
+                idFoto = editorial.getFoto().getId();
+            }
+
+            Foto foto = fotoServicio.actualizar(idFoto, archivo);
+            editorial.setFoto(foto);
+
             editorialRepositorio.save(editorial);
-        }else{
+        } else {
             throw new Excepciones("No se encontró el nombre del Editorial");
         }
     }
@@ -55,16 +74,17 @@ public class EditorialServicio {
             throw new Excepciones("El nombre del editorial no puede ser nulo");
         }
     }
-    
-      private void validarEditorialId(String id) throws Excepciones {
 
-        if (id== null || id.isEmpty()) {
+    private void validarEditorialId(String id) throws Excepciones {
+
+        if (id == null || id.isEmpty()) {
             throw new Excepciones("El nombre del editorial no puede ser nulo");
         }
     }
-    
-    private void darDeBajaEditorial (String id) throws Excepciones{
-        
+
+      @Transactional
+    private void darDeBajaEditorial(String id) throws Excepciones {
+
         validarEditorialId(id);
         Optional<Editorial> respuesta = editorialRepositorio.findById(id);
         if (respuesta.isPresent()) {
@@ -73,35 +93,35 @@ public class EditorialServicio {
             editorial.setAlta(false);
 
             editorialRepositorio.save(editorial);
-        }else{
+        } else {
             throw new Excepciones("No se encontró el id del Editorial");
         }
     }
-    
-    private void buscarEditorialId (String id) throws Excepciones{
-      
+
+    private void buscarEditorialId(String id) throws Excepciones {
+
         validarEditorialId(id);
-       Optional<Editorial> respuesta = editorialRepositorio.findById(id);
-       if (respuesta.isPresent()) {
+        Optional<Editorial> respuesta = editorialRepositorio.findById(id);
+        if (respuesta.isPresent()) {
 
             Editorial editorial = respuesta.get();
             editorial.getNombre();
 
-        }else{
+        } else {
             throw new Excepciones("No se encontró el id del Editorial");
         }
     }
-    
-    private void buscarEditorialnombre (String nombre) throws Excepciones{
-      
+
+    private void buscarEditorialnombre(String nombre) throws Excepciones {
+
         validarEditorialId(nombre);
-       Optional<Editorial> respuesta = editorialRepositorio.findById(nombre);
-       if (respuesta.isPresent()) {
+        Optional<Editorial> respuesta = editorialRepositorio.findById(nombre);
+        if (respuesta.isPresent()) {
 
             Editorial editorial = respuesta.get();
             editorial.getNombre();
 
-        }else{
+        } else {
             throw new Excepciones("No se encontró el nombre del Editorial");
         }
     }

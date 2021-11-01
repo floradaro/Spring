@@ -7,14 +7,17 @@ package com.libreria.libreria.servicios;
 
 import com.libreria.libreria.entidades.Autor;
 import com.libreria.libreria.entidades.Editorial;
+import com.libreria.libreria.entidades.Foto;
 import com.libreria.libreria.entidades.Libro;
 import com.libreria.libreria.excepciones.Excepciones;
 import com.libreria.libreria.repositorios.AutorRepositorio;
 import com.libreria.libreria.repositorios.EditorialRepositorio;
 import com.libreria.libreria.repositorios.LibroRepositorio;
 import java.util.Optional;
+import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  *
@@ -29,8 +32,11 @@ public class LibroServicio {
     private AutorRepositorio autorRepositorio;
     @Autowired
     private EditorialRepositorio editorialRepositorio;
+    @Autowired
+    private FotoServicio fotoServicio;
 
-    public void crearLibro(String titulo, Integer anio, Integer ejemplares, boolean alta, String idAutor, String idEditorial) throws Excepciones {
+      @Transactional
+    public void crearLibro(MultipartFile archivo,String titulo, Integer anio, Integer ejemplares, boolean alta, String idAutor, String idEditorial) throws Excepciones {
 
         Autor autor = autorRepositorio.findById(idAutor).get();
         Editorial editorial = editorialRepositorio.findById(idEditorial).get();
@@ -45,10 +51,14 @@ public class LibroServicio {
         libro.setAutor(autor);
         libro.setEditorial(editorial);
 
+        Foto foto = fotoServicio.guardar(archivo);
+        libro.setFoto(foto);
+        
         libroRepositorio.save(libro);
     }
 
-    public void modificarLibro(String idLibro, String idAutor, String idEditorial, String titulo, Integer anio, Integer ejemplares) throws Excepciones {
+      @Transactional
+    public void modificarLibro(MultipartFile archivo,String idLibro, String idAutor, String idEditorial, String titulo, Integer anio, Integer ejemplares) throws Excepciones {
 
         validarLibro(titulo, anio, ejemplares);
 
@@ -61,6 +71,15 @@ public class LibroServicio {
                     libro.setTitulo(titulo);
                     libro.setAnio(anio);
                     libro.setEjemplares(ejemplares);
+                    
+                     String idFoto = null;
+            if (libro.getFoto() != null) {
+                idFoto = libro.getFoto().getId();
+            }
+
+            Foto foto = fotoServicio.actualizar(idFoto, archivo);
+            libro.setFoto(foto);
+                    
                     libroRepositorio.save(libro);
 
                 } else {
@@ -96,6 +115,7 @@ public class LibroServicio {
         }
     }
 
+      @Transactional
     private void darDeBajaLibro(String idLibro, String idAutor, String idEditorial) throws Excepciones {
 
         Optional<Libro> respuesta = libroRepositorio.findById(idLibro);
