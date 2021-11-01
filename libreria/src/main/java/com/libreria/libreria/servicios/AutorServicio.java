@@ -65,6 +65,7 @@ public class AutorServicio {
     
     private void darDeBajaAutor (String id) throws Excepciones{
         
+        validarAutorId(id);
         Optional<Autor> respuesta = autorRepositorio.findById(id);
         if (respuesta.isPresent()) {
 
@@ -93,13 +94,11 @@ public class AutorServicio {
     
     private void buscarAutornombre (String nombre) throws Excepciones{
       
-        validarAutorId(nombre);
+        validarAutorNombre(nombre);
        Optional<Autor> respuesta = autorRepositorio.findById(nombre);
        if (respuesta.isPresent()) {
-
             Autor autor = respuesta.get();
             autor.getNombre();
-
         }else{
             throw new Excepciones("No se encontró el nombre del Autor");
         }
