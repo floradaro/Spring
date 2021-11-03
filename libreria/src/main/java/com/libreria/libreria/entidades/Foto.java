@@ -31,16 +31,6 @@ public class Foto {
     @Lob @Basic(fetch = FetchType.LAZY)
     private byte[] contenido;
 
-    public Foto() {
-    }
-
-    public Foto(String id, String nombre, String mime, byte[] contenido) {
-        this.id = id;
-        this.nombre = nombre;
-        this.mime = mime;
-        this.contenido = contenido;
-    }
-
     public String getId() {
         return id;
     }

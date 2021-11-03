@@ -10,9 +10,9 @@ import com.libreria.libreria.entidades.Foto;
 import com.libreria.libreria.excepciones.Excepciones;
 import com.libreria.libreria.repositorios.EditorialRepositorio;
 import java.util.Optional;
-import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
@@ -42,7 +42,17 @@ public class EditorialServicio {
 
         editorialRepositorio.save(editorial);
     }
+public Editorial creaEditorial(String nombre, boolean alta) throws Excepciones {
 
+        validarEditorialNombre(nombre);
+
+        Editorial editorial = new Editorial();
+        editorial.setNombre(nombre);
+        editorial.setAlta(true);
+
+        editorialRepositorio.save(editorial);
+        return editorial;
+    }
       @Transactional
     public void modificarEditorial(MultipartFile archivo, String id, String nombre) throws Excepciones {
 

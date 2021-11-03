@@ -19,12 +19,15 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface LibroRepositorio extends JpaRepository<Libro, String> {
 
+    //Por Autor Id
     @Query("SELECT c FROM Libro c WHERE c.autor.id = :id")
     public List<Libro> buscarLibrosPorAutor(@Param("id") String id);
 
+    //Por Editorial Id
     @Query("SELECT c FROM Libro c WHERE c.editorial.id = :id")
     public List<Libro> buscarLibrosPorEditorial(@Param("id") String id);
 
+    
     @Query("SELECT c FROM Libro c WHERE c.autor.nombre = :nombre")
     public List<Libro> buscarLibrosPorAutorNombre(@Param("nombre") String nombre);
 
@@ -33,4 +36,9 @@ public interface LibroRepositorio extends JpaRepository<Libro, String> {
          
     @Query("SELECT c FROM Libro c WHERE c.titulo= :titulo")
     public List<Libro> buscarLibrosPorTitulo(@Param("titulo") String titulo);
+    
+    @Query("SELECT c FROM Libro c")
+    public List<Libro> listarLibros();
 }
+
+

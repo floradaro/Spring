@@ -31,16 +31,6 @@ public class Autor {
     @OneToOne
     private Foto foto;
 
-    public Autor() {
-    }
-
-    public Autor(String id, String nombre, Boolean alta, Foto foto) {
-        this.id = id;
-        this.nombre = nombre;
-        this.alta = alta;
-        this.foto = foto;
-    }
-
     public String getId() {
         return id;
     }

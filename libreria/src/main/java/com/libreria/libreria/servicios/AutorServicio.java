@@ -9,10 +9,12 @@ import com.libreria.libreria.entidades.Autor;
 import com.libreria.libreria.entidades.Foto;
 import com.libreria.libreria.excepciones.Excepciones;
 import com.libreria.libreria.repositorios.AutorRepositorio;
+import java.util.List;
 import java.util.Optional;
-import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
@@ -27,8 +29,8 @@ public class AutorServicio {
 
     @Autowired
     private FotoServicio fotoServicio;
-    
-  @Transactional
+
+    @Transactional
     public void crearAutor(MultipartFile archivo, String nombre, boolean alta) throws Excepciones {
 
         validarAutorNombre(nombre);
@@ -43,7 +45,19 @@ public class AutorServicio {
         autorRepositorio.save(autor);
     }
 
-      @Transactional
+    public Autor creaAutor(String nombre, boolean alta) throws Excepciones {
+
+        validarAutorNombre(nombre);
+
+        Autor autor = new Autor();
+        autor.setNombre(nombre);
+        autor.setAlta(true);
+
+        autorRepositorio.save(autor);
+        return autor;
+    }
+
+    @Transactional
     public void modificarAutor(MultipartFile archivo, String id, String nombre) throws Excepciones {
 
         validarAutorNombre(nombre);
@@ -81,7 +95,7 @@ public class AutorServicio {
         }
     }
 
-      @Transactional
+    @Transactional
     private void darDeBajaAutor(String id) throws Excepciones {
 
         validarAutorId(id);
@@ -90,7 +104,6 @@ public class AutorServicio {
 
             Autor autor = respuesta.get();
             autor.setAlta(false);
-
             autorRepositorio.save(autor);
         } else {
             throw new Excepciones("No se encontró el id del Autor");
@@ -114,12 +127,21 @@ public class AutorServicio {
     private void buscarAutornombre(String nombre) throws Excepciones {
 
         validarAutorNombre(nombre);
-        Optional<Autor> respuesta = autorRepositorio.findById(nombre);
-        if (respuesta.isPresent()) {
-            Autor autor = respuesta.get();
-            autor.getNombre();
+        List<Autor> respuesta = autorRepositorio.listarNombresAutores(nombre);
+        if (respuesta != null) {
+            for (Autor a : respuesta) {
+                System.out.println("Nombre: " + a.getNombre());
+            }
         } else {
             throw new Excepciones("No se encontró el nombre del Autor");
         }
     }
+//@transaccional (readOnly = true)
+//    public List<Autor> listarNombresAutores(){
+    //    return perroRepository.buscarActivos();
+//    }
+//public List<Autor> listartodos(){
+    //    return perroRepositry.findAll();
+
+//
 }

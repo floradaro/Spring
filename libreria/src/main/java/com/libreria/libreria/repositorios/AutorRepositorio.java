@@ -17,16 +17,17 @@ import org.springframework.stereotype.Repository;
  * @author flora
  */
 @Repository
-public interface AutorRepositorio extends JpaRepository<Autor, String>{
-    
-    @Query("SELECT c FROM Autor c WHERE c.nombre = :nombre")
-    public Autor buscarPornombre(@Param("nombre")String nombre);
-    
+public interface AutorRepositorio extends JpaRepository<Autor, String> {
+
+    @Query("SELECT c FROM Autor c ")
+    public List<Autor> listarAutores();
+
     @Query("SELECT c FROM Autor c WHERE c.id = :id")
-    public Autor buscarPorId(@Param("id")String id);
-    
-     @Query("SELECT c FROM Autor c")
+    public Autor buscarPorId(@Param("id") String id);
+
+    @Query("SELECT c FROM Autor c WHERE c.nombre LIKE :nombre")
     public List<Autor> listarNombresAutores(@Param("nombre") String nombre);
-    }
+}
 
-
+//  @Query("SELECT c FROM Autor c WHERE c.id = true ")
+  //  public List<Autor> listarNombresAutores();

@@ -5,7 +5,6 @@
  */
 package com.libreria.libreria.entidades;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -17,19 +16,23 @@ import org.hibernate.annotations.GenericGenerator;
  * @author flora
  */
 @Entity
-public class Editorial {
-
+public class Usuario {
+    
     @Id
     @GeneratedValue(generator = "uuid")
     @GenericGenerator(name = "uuid", strategy = "uuid2")
     private String id;
-
-    @Column
     private String nombre;
+    private String apellido;
+    private String clave;
+    private String mail;
     private Boolean alta;
 
-    @OneToOne
+     @OneToOne
     private Foto foto;
+    
+    public Usuario() {
+    }
 
     public String getId() {
         return id;
@@ -39,12 +42,37 @@ public class Editorial {
         this.id = id;
     }
 
+
     public String getNombre() {
         return nombre;
     }
 
     public void setNombre(String nombre) {
         this.nombre = nombre;
+    }
+
+    public String getApellido() {
+        return apellido;
+    }
+
+    public void setApellido(String apellido) {
+        this.apellido = apellido;
+    }
+
+    public String getClave() {
+        return clave;
+    }
+
+    public void setClave(String clave) {
+        this.clave = clave;
+    }
+
+    public String getMail() {
+        return mail;
+    }
+
+    public void setMail(String mail) {
+        this.mail = mail;
     }
 
     public Boolean getAlta() {
@@ -63,9 +91,8 @@ public class Editorial {
         this.foto = foto;
     }
 
-    @Override
-    public String toString() {
-        return "Editorial{" + "id=" + getId() + ", nombre=" + getNombre() + ", alta=" + getAlta() + '}';
-    }
-
+    
+    
 }
+
+

@@ -13,10 +13,11 @@ import com.libreria.libreria.excepciones.Excepciones;
 import com.libreria.libreria.repositorios.AutorRepositorio;
 import com.libreria.libreria.repositorios.EditorialRepositorio;
 import com.libreria.libreria.repositorios.LibroRepositorio;
+import java.util.List;
 import java.util.Optional;
-import javax.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
@@ -55,6 +56,27 @@ public class LibroServicio {
         libro.setFoto(foto);
         
         libroRepositorio.save(libro);
+    }
+    
+    @Transactional
+    public Libro creaLibro(String titulo, Integer anio, Integer ejemplares, boolean alta, String idAutor, String idEditorial) throws Excepciones {
+
+        Autor autor = autorRepositorio.findById(idAutor).get();
+        Editorial editorial = editorialRepositorio.findById(idEditorial).get();
+
+        validarLibro(titulo, anio, ejemplares);
+
+        Libro libro = new Libro();
+        libro.setTitulo(titulo);
+        libro.setAnio(anio);
+        libro.setEjemplares(ejemplares);
+        libro.setAlta(true);
+        libro.setAutor(autor);
+        libro.setEditorial(editorial);
+
+        
+        libroRepositorio.save(libro);
+        return libro;
     }
 
       @Transactional
@@ -162,6 +184,13 @@ public class LibroServicio {
 
         } else {
             throw new Excepciones("No se encontró el titulo del Libro");
+        }
+    }
+    
+    public void imprimirLibros() throws Exception {
+        List<Libro> respuesta = libroRepositorio.listarLibros();
+        for (Libro libro : respuesta){
+            System.out.println(libro.getTitulo().length());
         }
     }
 
