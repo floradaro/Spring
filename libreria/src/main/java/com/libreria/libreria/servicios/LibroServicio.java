@@ -36,8 +36,8 @@ public class LibroServicio {
     @Autowired
     private FotoServicio fotoServicio;
 
-      @Transactional
-    public void crearLibro(MultipartFile archivo,String titulo, Integer anio, Integer ejemplares, boolean alta, String idAutor, String idEditorial) throws Excepciones {
+    @Transactional
+    public void crearLibro(MultipartFile archivo, String titulo, Integer anio, Integer ejemplares, boolean alta, String idAutor, String idEditorial) throws Excepciones {
 
         Autor autor = autorRepositorio.findById(idAutor).get();
         Editorial editorial = editorialRepositorio.findById(idEditorial).get();
@@ -54,10 +54,10 @@ public class LibroServicio {
 
         Foto foto = fotoServicio.guardar(archivo);
         libro.setFoto(foto);
-        
+
         libroRepositorio.save(libro);
     }
-    
+
     @Transactional
     public Libro creaLibro(String titulo, Integer anio, Integer ejemplares, boolean alta, String idAutor, String idEditorial) throws Excepciones {
 
@@ -74,13 +74,12 @@ public class LibroServicio {
         libro.setAutor(autor);
         libro.setEditorial(editorial);
 
-        
         libroRepositorio.save(libro);
         return libro;
     }
 
-      @Transactional
-    public void modificarLibro(MultipartFile archivo,String idLibro, String idAutor, String idEditorial, String titulo, Integer anio, Integer ejemplares) throws Excepciones {
+    @Transactional
+    public void modificarLibro(MultipartFile archivo, String idLibro, String idAutor, String idEditorial, String titulo, Integer anio, Integer ejemplares) throws Excepciones {
 
         validarLibro(titulo, anio, ejemplares);
 
@@ -93,15 +92,15 @@ public class LibroServicio {
                     libro.setTitulo(titulo);
                     libro.setAnio(anio);
                     libro.setEjemplares(ejemplares);
-                    
-                     String idFoto = null;
-            if (libro.getFoto() != null) {
-                idFoto = libro.getFoto().getId();
-            }
 
-            Foto foto = fotoServicio.actualizar(idFoto, archivo);
-            libro.setFoto(foto);
-                    
+                    String idFoto = null;
+                    if (libro.getFoto() != null) {
+                        idFoto = libro.getFoto().getId();
+                    }
+
+                    Foto foto = fotoServicio.actualizar(idFoto, archivo);
+                    libro.setFoto(foto);
+
                     libroRepositorio.save(libro);
 
                 } else {
@@ -137,17 +136,17 @@ public class LibroServicio {
         }
     }
 
-      @Transactional
+    @Transactional
     private void darDeBajaLibro(String idLibro, String idAutor, String idEditorial) throws Excepciones {
 
         Optional<Libro> respuesta = libroRepositorio.findById(idLibro);
         if (respuesta.isPresent()) {
             Libro libro = respuesta.get();
             if (libro.getAutor().getId().equals(idAutor)) {
-                 if (libro.getEditorial().getId().equals(idEditorial)) {
-                libro.setAlta(false);
-                libroRepositorio.save(libro);
-            } else {
+                if (libro.getEditorial().getId().equals(idEditorial)) {
+                    libro.setAlta(false);
+                    libroRepositorio.save(libro);
+                } else {
                     throw new Excepciones("No tiene permisos suficientes para modificar (Editorial)");
                 }
             } else {
@@ -173,10 +172,10 @@ public class LibroServicio {
         }
     }
 
-    private void buscarLibrotitulo(String titulo) throws Excepciones {
+    private void buscarLibrotitulo(String id) throws Excepciones {
 
-        validarLibroId(titulo);
-        Optional<Libro> respuesta = libroRepositorio.findById(titulo);
+        validarLibroId(id);
+        Optional<Libro> respuesta = libroRepositorio.findById(id);
         if (respuesta.isPresent()) {
 
             Libro libro = respuesta.get();
@@ -186,12 +185,17 @@ public class LibroServicio {
             throw new Excepciones("No se encontró el titulo del Libro");
         }
     }
-    
+
     public void imprimirLibros() throws Exception {
-        List<Libro> respuesta = libroRepositorio.listarLibros();
-        for (Libro libro : respuesta){
-            System.out.println(libro.getTitulo().length());
+        List<Libro> respuesta = libroRepositorio.buscarLibrosPorTituloAlta();
+        for (Libro libro : respuesta) {
+            if (respuesta != null) {
+                for (Libro a : respuesta) {
+                    System.out.println("Nombre: " + a.getTitulo());
+                }
+            } else {
+                throw new Excepciones("No se encontró el nombre del Autor");
+            }
         }
     }
-
 }

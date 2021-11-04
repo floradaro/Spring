@@ -19,15 +19,22 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface AutorRepositorio extends JpaRepository<Autor, String> {
 
-    @Query("SELECT c FROM Autor c ")
-    public List<Autor> listarAutores();
-
-    @Query("SELECT c FROM Autor c WHERE c.id = :id")
+    //Por id
+    @Query("SELECT a FROM Autor a WHERE a.id = :id")
     public Autor buscarPorId(@Param("id") String id);
 
-    @Query("SELECT c FROM Autor c WHERE c.nombre LIKE :nombre")
+    // Todos
+    @Query("SELECT a FROM Autor a ORDER BY a.nombre DESC")
+    public List<Autor> listarAutores();
+
+    // Alta y baja
+    @Query("SELECT a FROM Autor a WHERE a.alta = true ORDER BY a.nombre DESC")
+    public List<Autor> ListarAutoresAlta();
+
+    @Query("SELECT a FROM Autor a WHERE a.alta = false ORDER BY a.nombre DESC")
+    public List<Autor> ListarAutoresBaja();
+
+    // Parametros
+    @Query("SELECT a FROM Autor a WHERE a.nombre LIKE :nombre ORDER BY a.nombre DESC")
     public List<Autor> listarNombresAutores(@Param("nombre") String nombre);
 }
-
-//  @Query("SELECT c FROM Autor c WHERE c.id = true ")
-  //  public List<Autor> listarNombresAutores();

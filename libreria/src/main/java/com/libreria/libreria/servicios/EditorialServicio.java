@@ -9,6 +9,7 @@ import com.libreria.libreria.entidades.Editorial;
 import com.libreria.libreria.entidades.Foto;
 import com.libreria.libreria.excepciones.Excepciones;
 import com.libreria.libreria.repositorios.EditorialRepositorio;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,7 +29,7 @@ public class EditorialServicio {
     @Autowired
     private FotoServicio fotoServicio;
 
-      @Transactional
+    @Transactional
     public void crearEditorial(MultipartFile archivo, String nombre, boolean alta) throws Excepciones {
 
         validarEditorialNombre(nombre);
@@ -42,7 +43,8 @@ public class EditorialServicio {
 
         editorialRepositorio.save(editorial);
     }
-public Editorial creaEditorial(String nombre, boolean alta) throws Excepciones {
+
+    public Editorial creaEditorial(String nombre, boolean alta) throws Excepciones {
 
         validarEditorialNombre(nombre);
 
@@ -53,7 +55,8 @@ public Editorial creaEditorial(String nombre, boolean alta) throws Excepciones {
         editorialRepositorio.save(editorial);
         return editorial;
     }
-      @Transactional
+
+    @Transactional
     public void modificarEditorial(MultipartFile archivo, String id, String nombre) throws Excepciones {
 
         validarEditorialNombre(nombre);
@@ -92,7 +95,7 @@ public Editorial creaEditorial(String nombre, boolean alta) throws Excepciones {
         }
     }
 
-      @Transactional
+    @Transactional
     private void darDeBajaEditorial(String id) throws Excepciones {
 
         validarEditorialId(id);
@@ -124,15 +127,14 @@ public Editorial creaEditorial(String nombre, boolean alta) throws Excepciones {
 
     private void buscarEditorialnombre(String nombre) throws Excepciones {
 
-        validarEditorialId(nombre);
-        Optional<Editorial> respuesta = editorialRepositorio.findById(nombre);
-        if (respuesta.isPresent()) {
-
-            Editorial editorial = respuesta.get();
-            editorial.getNombre();
-
+        validarEditorialNombre(nombre);
+        List<Editorial> respuesta = editorialRepositorio.listarNombresEditorial(nombre);
+        if (respuesta!= null) {
+            for (Editorial a : respuesta) {
+                System.out.println("Nombre: " + a.getNombre());
+            }
         } else {
-            throw new Excepciones("No se encontró el nombre del Editorial");
+            throw new Excepciones("No se encontró el nombre de la Editorial");
         }
     }
 }
