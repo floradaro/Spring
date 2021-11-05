@@ -30,7 +30,7 @@ public class AutorServicio {
     private FotoServicio fotoServicio;
 
     @Transactional
-    public void crearAutor(MultipartFile archivo, String nombre, boolean alta) throws Excepciones {
+    public void crearAutor(MultipartFile archivo, String nombre) throws Excepciones {
 
         validarAutorNombre(nombre);
 
@@ -42,18 +42,6 @@ public class AutorServicio {
         autor.setFoto(foto);
 
         autorRepositorio.save(autor);
-    }
-
-    public Autor creaAutor(String nombre, boolean alta) throws Excepciones {
-
-        validarAutorNombre(nombre);
-
-        Autor autor = new Autor();
-        autor.setNombre(nombre);
-        autor.setAlta(true);
-
-        autorRepositorio.save(autor);
-        return autor;
     }
 
     @Transactional

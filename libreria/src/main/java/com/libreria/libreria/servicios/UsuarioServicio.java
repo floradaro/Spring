@@ -39,30 +39,30 @@ public class UsuarioServicio implements UserDetailsService {
     private NotificacionServicio notificacionServicio;
 
     @Transactional
-    public void registrar(MultipartFile archivo, String nombre, String apellido, String mail, String clave) throws Excepciones {
+    public void registrar(MultipartFile archivo, String nombre, String apellido, String mail, String clave1, String clave2) throws Excepciones {
 
-        validar(nombre, apellido, mail, clave);
+        validar(nombre, apellido, mail, clave1, clave2);
 
         Usuario usuario = new Usuario();
         usuario.setNombre(nombre);
         usuario.setApellido(apellido);
         usuario.setMail(mail);
 
-        String encriptada = new BCryptPasswordEncoder().encode(clave);
+        String encriptada = new BCryptPasswordEncoder().encode(clave1);
         usuario.setClave(encriptada);
 
         Foto foto = fotoServicio.guardar(archivo);
         usuario.setFoto(foto);
         usuarioRepositorio.save(usuario);
 
-        notificacionServicio.enviar("Bienvenidos a la Libreria", "Libreria Egg", usuario.getMail());
+//        notificacionServicio.enviar("Bienvenidos a la Libreria", "Libreria Egg", usuario.getMail());
 
     }
 
     @Transactional
-    public void modificar(MultipartFile archivo, String idUsuario, Boolean alta, String nombre, String apellido, String mail, String clave) throws Excepciones {
+    public void modificar(MultipartFile archivo, String idUsuario, Boolean alta, String nombre, String apellido, String mail, String clave, String clave2) throws Excepciones {
 
-        validar(nombre, apellido, mail, clave);
+        validar(nombre, apellido, mail, clave, clave2);
         Optional<Usuario> respuesta = usuarioRepositorio.findById(idUsuario);
         if (respuesta.isPresent()) {
             Usuario usuario = respuesta.get();
@@ -88,7 +88,7 @@ public class UsuarioServicio implements UserDetailsService {
         }
     }
 
-    private void validar(String nombre, String apellido, String mail, String clave) throws Excepciones {
+    private void validar(String nombre, String apellido, String mail, String clave, String clave2) throws Excepciones {
 
         if (nombre == null || nombre.isEmpty()) {
             throw new Excepciones("El nombre del usuario no puede ser nulo");
@@ -100,8 +100,12 @@ public class UsuarioServicio implements UserDetailsService {
         if (mail == null || mail.isEmpty()) {
             throw new Excepciones("El mail del usuario no puede ser nulo");
         }
-        if (clave == null || clave.isEmpty() || clave.length() < 6) {
+        if (clave == null || clave.isEmpty() || clave.length() <= 6) {
             throw new Excepciones("La clave del usuario no puede ser nulo y tiene que tener mas de 6 digitos");
+        }
+        
+        if(!clave.equals(clave2)){
+             throw new Excepciones("Las claves deben ser iguales");
         }
     }
 

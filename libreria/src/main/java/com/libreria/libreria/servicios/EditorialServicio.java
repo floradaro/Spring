@@ -30,7 +30,7 @@ public class EditorialServicio {
     private FotoServicio fotoServicio;
 
     @Transactional
-    public void crearEditorial(MultipartFile archivo, String nombre, boolean alta) throws Excepciones {
+    public void crearEditorial(MultipartFile archivo, String nombre) throws Excepciones {
 
         validarEditorialNombre(nombre);
 
@@ -42,18 +42,6 @@ public class EditorialServicio {
         editorial.setFoto(foto);
 
         editorialRepositorio.save(editorial);
-    }
-
-    public Editorial creaEditorial(String nombre, boolean alta) throws Excepciones {
-
-        validarEditorialNombre(nombre);
-
-        Editorial editorial = new Editorial();
-        editorial.setNombre(nombre);
-        editorial.setAlta(true);
-
-        editorialRepositorio.save(editorial);
-        return editorial;
     }
 
     @Transactional
