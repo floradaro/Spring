@@ -12,6 +12,7 @@ import com.libreria.libreria.repositorios.UsuarioRepositorio;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import javax.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -22,6 +23,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
@@ -139,7 +142,8 @@ public class UsuarioServicio implements UserDetailsService {
         Usuario usuario = usuarioRepositorio.buscarPorMail(mail);
         if (usuario != null) {
             List<GrantedAuthority> permisos = new ArrayList<>();
-            GrantedAuthority p1 = new SimpleGrantedAuthority("MODULO_FOTOS");
+            
+            GrantedAuthority p1 = new SimpleGrantedAuthority("ROLE_USUARIO_REGISTRADO");
             permisos.add(p1);
 
             GrantedAuthority p2 = new SimpleGrantedAuthority("MODULO_LIBROS");
@@ -147,6 +151,10 @@ public class UsuarioServicio implements UserDetailsService {
 
             GrantedAuthority p3 = new SimpleGrantedAuthority("MODULO_PRESTAMO");
             permisos.add(p3);
+
+            ServletRequestAttributes attr = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
+            HttpSession session = attr.getRequest().getSession(true);
+            session.setAttribute("usuariosession", usuario);
 
             User user = new User(usuario.getMail(), usuario.getClave(), permisos);
             return user;

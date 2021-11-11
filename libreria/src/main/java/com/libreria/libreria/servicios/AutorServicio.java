@@ -67,6 +67,23 @@ public class AutorServicio {
             throw new Excepciones("No se encontró el nombre del Autor");
         }
     }
+    
+    @Transactional
+    public void modificarAutorID(String id,String nombrenuevo) throws Excepciones {
+        validarAutorId(id);
+        validarAutorNombre(nombrenuevo);
+
+        Optional<Autor> respuesta = autorRepositorio.findById(id);
+        if (respuesta.isPresent()) {
+
+            Autor autor = respuesta.get();
+            autor.setNombre(nombrenuevo);
+
+            autorRepositorio.save(autor);
+        } else {
+            throw new Excepciones("No se encontró el id del Autor");
+        }
+    }
 
     private void validarAutorNombre(String nombre) throws Excepciones {
 
@@ -97,38 +114,35 @@ public class AutorServicio {
         }
     }
 
-    private void buscarAutorId(String id) throws Excepciones {
-
+    public Autor buscarAutorId(String id) throws Excepciones {
         validarAutorId(id);
+
         Optional<Autor> respuesta = autorRepositorio.findById(id);
+        Autor autor = null;
         if (respuesta.isPresent()) {
-
-            Autor autor = respuesta.get();
-            autor.getNombre();
-
+            autor = respuesta.get();
         } else {
             throw new Excepciones("No se encontró el id del Autor");
         }
+        return autor;
     }
 
-    private void buscarAutornombre(String nombre) throws Excepciones {
-
+    public void buscarAutorNombre(String nombre) throws Excepciones {
         validarAutorNombre(nombre);
+        
         List<Autor> respuesta = autorRepositorio.listarNombresAutores(nombre);
         if (respuesta != null) {
             for (Autor a : respuesta) {
-                System.out.println("Nombre: " + a.getNombre());
+                a.getNombre();
             }
         } else {
             throw new Excepciones("No se encontró el nombre del Autor");
         }
     }
-//@transaccional (readOnly = true)
-//    public List<Autor> listarNombresAutores(){
-    //    return perroRepository.buscarActivos();
-//    }
-//public List<Autor> listartodos(){
-    //    return perroRepositry.findAll();
-
-//
+ @Transactional
+    public List<Autor> listarAutores() throws Exception{
+        List<Autor> autores = autorRepositorio.listarAutores();
+        
+        return autores;
+    }
 }

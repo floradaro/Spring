@@ -46,4 +46,7 @@ public interface LibroRepositorio extends JpaRepository<Libro, String> {
 
     @Query("SELECT a FROM Libro a ORDER BY a.titulo DESC")
     public List<Libro> listarLibros();
+    
+    @Query("SELECT a from Libro a WHERE a.alta = true ")
+	public List<Libro> buscarActivos();
 }

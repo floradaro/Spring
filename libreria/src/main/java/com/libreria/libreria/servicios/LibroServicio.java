@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -114,17 +115,38 @@ public class LibroServicio {
         }
 
     }
+    
+    //------MODIFICACIONES
+    @Transactional
+    public void modificarLibro(String idLibro,String titulo,Integer anio,Integer ejemplares,String idautor, String ideditorial) throws Excepciones {
+        
+        validarLibro(titulo, anio, ejemplares);
+        Autor autor = autorRepositorio.findById(idautor).get();
+        Editorial editorial = editorialRepositorio.findById(ideditorial).get();
 
+        Libro libro = buscarLibroId(idLibro);
+        if(libro != null){
+            
+            libro.setTitulo(titulo);
+            libro.setAutor(autor);
+            libro.setEditorial(editorial);
+            libro.setAnio(anio);
+            libro.setEjemplares(ejemplares);
+            
+            libroRepositorio.save(libro);
+        } else {
+            throw new Excepciones("No se encontro el Libro");
+        }
+    }
     private void validarLibro(String titulo, Integer anio, Integer ejemplares) throws Excepciones {
 
         if (titulo == null || titulo.isEmpty()) {
             throw new Excepciones("El titulo del libro no puede ser nulo");
         }
-
-        if (anio == null) {
+        if (anio == null || anio <= 0 ) {
             throw new Excepciones("Se debe especificar el año de Alta");
         }
-        if (ejemplares == null) {
+        if (ejemplares == null || ejemplares <=0) {
             throw new Excepciones("Debe indicar el número de ejemplares");
         }
     }
@@ -136,40 +158,56 @@ public class LibroServicio {
         }
     }
 
-    @Transactional
-    private void darDeBajaLibro(String idLibro, String idAutor, String idEditorial) throws Excepciones {
+//    @Transactional
+//    private void darDeBajaLibro(String idLibro, String idAutor, String idEditorial) throws Excepciones {
+//
+//        Optional<Libro> respuesta = libroRepositorio.findById(idLibro);
+//        if (respuesta.isPresent()) {
+//            Libro libro = respuesta.get();
+//            if (libro.getAutor().getId().equals(idAutor)) {
+//                if (libro.getEditorial().getId().equals(idEditorial)) {
+//                    libro.setAlta(false);
+//                    libroRepositorio.save(libro);
+//                } else {
+//                    throw new Excepciones("No tiene permisos suficientes para modificar (Editorial)");
+//                }
+//            } else {
+//                throw new Excepciones("No tiene permisos suficientes(Autor)");
+//            }
+//        } else {
+//            throw new Excepciones("No se encontró el titulo del Libro");
+//        }
+//
+//    }
 
-        Optional<Libro> respuesta = libroRepositorio.findById(idLibro);
-        if (respuesta.isPresent()) {
-            Libro libro = respuesta.get();
-            if (libro.getAutor().getId().equals(idAutor)) {
-                if (libro.getEditorial().getId().equals(idEditorial)) {
-                    libro.setAlta(false);
-                    libroRepositorio.save(libro);
-                } else {
-                    throw new Excepciones("No tiene permisos suficientes para modificar (Editorial)");
-                }
-            } else {
-                throw new Excepciones("No tiene permisos suficientes(Autor)");
-            }
-        } else {
-            throw new Excepciones("No se encontró el titulo del Libro");
-        }
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class})
+    public Libro alta(String id) {
 
+        Libro entidad = libroRepositorio.getOne(id);
+
+        entidad.setAlta(true);
+        return libroRepositorio.save(entidad);
     }
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class})
+    public Libro baja(String id) {
 
-    private void buscarLibroId(String id) throws Excepciones {
+        Libro entidad = libroRepositorio.getOne(id);
 
+        entidad.setAlta(false);
+        return libroRepositorio.save(entidad);
+    }
+   //------BUSQUEDA----------------
+    public Libro buscarLibroId(String id) throws Excepciones {
         validarLibroId(id);
+        
         Optional<Libro> respuesta = libroRepositorio.findById(id);
+        Libro libro = null;
         if (respuesta.isPresent()) {
-
-            Libro libro = respuesta.get();
-            libro.getTitulo();
-
+            libro = respuesta.get();
         } else {
-            throw new Excepciones("No se encontró el id del Libro");
+//            throw new Excepcion("No se encontró el id del Libro");
         }
+        return libro;
     }
 
     private void buscarLibrotitulo(String id) throws Excepciones {
@@ -185,6 +223,22 @@ public class LibroServicio {
             throw new Excepciones("No se encontró el titulo del Libro");
         }
     }
+    
+    @Transactional(readOnly=true)
+    public Libro getOne(String id){
+        return libroRepositorio.getOne(id);
+    }
+    
+
+    @Transactional(readOnly = true)
+    public List<Libro> listarActivos() {
+        return libroRepositorio.buscarActivos();
+    }
+
+    @Transactional(readOnly = true)
+    public List<Libro> listarTodos() {
+        return libroRepositorio.findAll();
+    }
 
     public void imprimirLibros() throws Exception {
         List<Libro> respuesta = libroRepositorio.buscarLibrosPorTituloAlta();
@@ -197,5 +251,43 @@ public class LibroServicio {
                 throw new Excepciones("No se encontró el nombre del Autor");
             }
         }
+    }
+    //----------------PRESTAMOS-----------------------
+    @Transactional
+    public void prestarLibro(String idLibro,Integer ejemplaresPresta) throws Excepciones{
+        validarLibroId(idLibro);
+        
+        Libro libro = buscarLibroId(idLibro);
+        
+        if(libro!=null){
+            if(libro.getEjemplaresRestantes()<=0){
+                throw new Excepciones("No quedan libros para prestar");
+            } if(ejemplaresPresta<libro.getEjemplaresRestantes()){
+                libro.setEjemplaresRestantes(libro.getEjemplaresRestantes()-ejemplaresPresta);
+                libro.setEjemplaresPrestados(libro.getEjemplaresPrestados()+ejemplaresPresta);
+            } else {
+                throw new Excepciones("No hay suficientes libros para prestar");
+            }
+        }
+        libroRepositorio.save(libro);
+    }
+    //----------------DEVOLUCIONES-----------------------
+    @Transactional
+    public void devolverLibro(String idLibro,Integer ejemplaresVuelta) throws Excepciones{
+        validarLibroId(idLibro);
+        
+        Libro libro = buscarLibroId(idLibro);
+        
+        Integer valor = libro.getEjemplaresRestantes()+ejemplaresVuelta;
+        
+        if(libro!=null){
+            if(libro.getEjemplares()>=valor){
+                libro.setEjemplaresRestantes(libro.getEjemplaresRestantes()+ejemplaresVuelta);
+                libro.setEjemplaresPrestados(libro.getEjemplaresPrestados()-ejemplaresVuelta);
+            } else {
+                throw new Excepciones("Se estan devolviendo mas libros que los prestados");
+            }
+        }
+        libroRepositorio.save(libro);
     }
 }

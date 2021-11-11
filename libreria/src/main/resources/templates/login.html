@@ -38,13 +38,13 @@
                                 <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
                                     <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
                                         <li class="nav-item active">
-                                            <a class="nav-link" href="/libreg" style="color: grey;">Libros<span class="sr-only">(current)</span></a>
+                                            <a class="nav-link" href="/" style="color: grey;">Libros<span class="sr-only">(current)</span></a>
                                         </li>
                                         <li class="nav-item">
-                                            <a class="nav-link" href="/autreg" style="color: grey;">Autores</a>
+                                            <a class="nav-link" href="/" style="color: grey;">Autores</a>
                                         </li>
                                         <li class="nav-item">
-                                            <a class="nav-link" href="/editreg" style="color: grey;">Editoriales</a>
+                                            <a class="nav-link" href="/" style="color: grey;">Editoriales</a>
                                         </li>
                                     </ul>
                                     <form class="form-inline my-2 my-lg-0">
@@ -52,8 +52,8 @@
                                             <button class="btn btn-warning my-2 my-sm-0" type="submit" style="color: black;">Buscar</button>
                                     </form>
 
-                                    <button class="btn btn-warning mr-sm-2" type="submit" style="color: black;"><a href="/login" style="color: black;">Login </a></button>
-                                    <button class="btn btn-warning my-2 my-sm-0" type="submit" style="color: black;"><a href="/registro" style="color: black;">Registrarse </a></button>
+                                    <button class="btn btn-warning mr-sm-2" type="submit" style="color: black;"><a href="/login" style="color: black;">Ingresar </a></button>
+              
                                 </div>
 
                             </nav>
@@ -74,6 +74,7 @@
                                                 <form action="/logincheck" method="POST">
                                                     <p th:if="${error != null}" th:text="${error}" style="color:red"></p>
                                                     <p th:if="${exito != null}" th:text="${exito}" style="color:green"></p>
+                                                    <p th:if="${logout != null}" th:text="${logout}" style="color:green"></p>
                                                    
 
                                                     <label>E-Mail</label>

@@ -7,9 +7,11 @@ package com.libreria.libreria.controlador;
 
 import com.libreria.libreria.entidades.Autor;
 import com.libreria.libreria.entidades.Editorial;
+import com.libreria.libreria.entidades.Libro;
 import com.libreria.libreria.excepciones.Excepciones;
 import com.libreria.libreria.repositorios.AutorRepositorio;
 import com.libreria.libreria.repositorios.EditorialRepositorio;
+import com.libreria.libreria.repositorios.LibroRepositorio;
 import com.libreria.libreria.repositorios.UsuarioRepositorio;
 import com.libreria.libreria.servicios.AutorServicio;
 import com.libreria.libreria.servicios.EditorialServicio;
@@ -19,6 +21,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -48,22 +51,28 @@ public class PortalControlador {
     private EditorialRepositorio editorialRepositorio;
     @Autowired
     private AutorRepositorio autorRepositorio;
+    @Autowired
+    private LibroRepositorio libroRepositorio;
 
     @GetMapping("/")
     public String index() {
         return "index.html";
     }
     //-------LOGIN
-    
-     @GetMapping("/inicio")
+
+    @PreAuthorize("hasAnyRole('ROLE_USUARIO_REGISTRADO')")
+    @GetMapping("/inicio")
     public String inicio() {
         return "inicio.html";
     }
 
     @GetMapping("/login")
-    public String login(@RequestParam(required = false) String error, ModelMap modelo) {
-        if(error != null ){
-        modelo.put("error", "Nombre de usuario o clave incorrectos");
+    public String login(@RequestParam(required = false) String error, @RequestParam(required = false) String logout, ModelMap modelo) {
+        if (error != null) {
+            modelo.put("error", "Nombre de usuario o clave incorrectos");
+        }
+        if (logout != null) {
+            modelo.put("logout", "Has salido correctamente");
         }
         return "login.html";
     }
@@ -87,33 +96,35 @@ public class PortalControlador {
             modelo.put("apellido", apellido);
             modelo.put("mail", mail);
             modelo.put("clave1", clave1);
-             modelo.put("clave2", clave2);
-             
+            modelo.put("clave2", clave2);
+
             return "registro.html";
         }
 
     }
 
     //-------REGISTRO DE EDITORIALES
+    @PreAuthorize("hasAnyRole('ROLE_USUARIO_REGISTRADO')")
     @GetMapping("/editreg")
     public String editreg() {
         return "editreg.html";
     }
 
     @PostMapping("/editreg")
-    public String editreg(ModelMap modelo,@RequestParam String nombre) {
+    public String editreg(ModelMap modelo, @RequestParam String nombre) {
 
         try {
             editorialServicio.crearEditorial(null, nombre);
-               modelo.put("exito", "Registro Exitoso!");
+            modelo.put("exito", "Registro Exitoso!");
             return "editreg.html";
         } catch (Excepciones ex) {
-             modelo.put("error", "Debe completar todos los campos");
+            modelo.put("error", "Debe completar todos los campos");
             return "editreg.html";
         }
     }
 
     //--------REGISTRO DE AUTORES
+    @PreAuthorize("hasAnyRole('ROLE_USUARIO_REGISTRADO')")
     @GetMapping("/autreg")
     public String autreg() {
         return "autreg.html";
@@ -124,7 +135,7 @@ public class PortalControlador {
         String completo = nombre + " " + apellido;
         try {
             autorServicio.crearAutor(null, completo);
-              modelo.put("exito", "Registro Exitoso!");
+            modelo.put("exito", "Registro Exitoso!");
             return "autreg.html";
         } catch (Excepciones ex) {
             modelo.put("error", "Debe completar todos los campos");
@@ -132,21 +143,8 @@ public class PortalControlador {
         }
     }
 
-//    //-------MODIFICAR 
-//    @GetMapping("/Modificar/{id}")
-//    public String modificar(@PathVariable String id, ModelMap modelo) {
-//
-//        return ("/modificar");
-//
-//    }
-
-//    //---------------LIBROS---------------
-//    @GetMapping("/libini")
-//    public String libini(ModelMap modelo) {
-//        return "libini.html";
-//    }
-
     //-------REGISTRO DE LIBROS
+    @PreAuthorize("hasAnyRole('ROLE_USUARIO_REGISTRADO')")
     @GetMapping("/libreg")
     public String libreg(ModelMap modelo) {
 
@@ -160,6 +158,7 @@ public class PortalControlador {
     }
 
     //////////////CORREGIR ERROR AL ENVIAR DATOS NULOS//////////////
+    @PreAuthorize("hasAnyRole('ROLE_USUARIO_REGISTRADO')")
     @PostMapping("/libreg")
     public String libreg(ModelMap modelo, MultipartFile archivo, @RequestParam String titulo, @RequestParam String idautor, @RequestParam String ideditorial, @RequestParam Integer anio, @RequestParam Integer ejemplares) {
 
@@ -183,12 +182,172 @@ public class PortalControlador {
         }
         return "libreg";
     }
-//    
-//    @GetMapping ("/lista")
-//    public String lista (MoelMap modelo){
-//        list <PErro> perros = perroSerivce.listarTodos();
-//        
-//        modelo.addAtribute("perros",perros);
-//        return "list-perro";
-//    }
+
+//    //--------------MODIFICAR AUTOR--------------
+    @GetMapping("/inicioautor")
+    public String inicioautor(ModelMap modelo) {
+        List<Autor> autores = autorRepositorio.findAll();
+        modelo.put("autores", autores);
+        return "inicioautor.html";
+    }
+
+    @GetMapping("/modificarautor/{id}")
+    public String modificarautor(@PathVariable String id, ModelMap modelo) throws Excepciones {
+        modelo.put("autores", autorServicio.buscarAutorId(id));
+        return "/modificarautor";
+    }
+
+    @PostMapping("/modificarautor/{id}")
+    public String modificarautor(ModelMap modelo, @PathVariable String id, @RequestParam String nombre) throws Excepciones {
+        try {
+            autorServicio.modificarAutorID(id, nombre);
+            modelo.put("exito", "Autor modificada con exito");
+        } catch (Excepciones ex) {
+            modelo.put("error", "Ingrese el nombre del Autor");
+            modelo.put("autores", autorServicio.buscarAutorId(id));
+            return "/modificarautor";
+        }
+        List<Autor> autores = autorRepositorio.findAll();
+        modelo.put("autores", autores);
+        return "inicioautor";
+    }
+
+//    //--------------MODIFICAR EDITORIAL--------------
+    @GetMapping("/inicioeditorial")
+    public String inicioeditorial(ModelMap modelo) {
+
+        List<Editorial> editoriales = editorialRepositorio.findAll();
+        modelo.put("editoriales", editoriales);
+        return "inicioeditorial.html";
+    }
+
+    @GetMapping("/modificareditorial/{id}")
+    public String modificareditorial(@PathVariable String id, ModelMap modelo) throws Excepciones {
+        modelo.put("editoriales", editorialServicio.buscarEditorialId(id));
+        return "/modificareditorial";
+    }
+
+    @PostMapping("/modificareditorial/{id}")
+    public String modificareditorial(ModelMap modelo, @PathVariable String id, @RequestParam String nombre) throws Excepciones {
+        try {
+            editorialServicio.modificarEditorialId(id, nombre);
+            modelo.put("exito", "Editorial modificada con exito");
+        } catch (Excepciones ex) {
+            modelo.put("error", "Ingrese el nombre de la Editorial ");
+            modelo.put("editoriales", editorialServicio.buscarEditorialId(id));
+            return "/modificareditorial";
+        }
+        List<Editorial> editoriales = editorialRepositorio.findAll();
+        modelo.put("editoriales", editoriales);
+        return "inicioeditorial";
+    }
+//    //--------------MODIFICAR Libros--------------
+
+    @GetMapping("/iniciolibro")
+    public String iniciolibro(ModelMap modelo) {
+        List<Libro> libros = libroRepositorio.findAll();
+        modelo.put("libros", libros);
+        return "iniciolibro.html";
+    }
+
+    @GetMapping("/modificarlibro/{id}")
+    public String modificarlibro(@PathVariable String id, ModelMap modelo) throws Excepciones {
+
+        List<Editorial> editoriales = editorialRepositorio.findAll();
+        modelo.put("editoriales", editoriales);
+        List<Autor> autores = autorRepositorio.findAll();
+        modelo.put("autores", autores);
+        modelo.put("libros", libroServicio.buscarLibroId(id));
+        return "/modificarlibro";
+    }
+
+    @PostMapping("/modificarlibro/{id}")
+    public String modificarlibro(@PathVariable String id, @RequestParam String titulo, @RequestParam Integer anio, @RequestParam Integer ejemplares, @RequestParam String idautor, @RequestParam String ideditorial, ModelMap modelo) throws Excepciones {
+        try {
+            libroServicio.modificarLibro(id, titulo, anio, ejemplares, idautor, ideditorial);
+            modelo.put("exito", "Libro modificado con exito");
+            List<Libro> libros = libroRepositorio.findAll();
+            modelo.put("libros", libros);
+            return "/iniciolibro";
+            
+        } catch (Excepciones ex) {
+            modelo.put("libros", libroServicio.buscarLibroId(id));
+            modelo.put("error", ex.getMessage());
+            return "/modificarlibro.html";
+        }
+         
+    }
+
+    //-----------BUSCAR AUTOR
+    @GetMapping("/buscarautor")
+    public String buscarautor(ModelMap modelo) {
+        List<Autor> autores = autorRepositorio.findAll();
+        modelo.put("autores", autores);
+        return "buscarautor.html";
+    }
+
+    @GetMapping("/buscareditorial")
+    public String buscareditorial(ModelMap modelo) {
+        List<Editorial> editoriales = editorialRepositorio.findAll();
+        modelo.put("editoriales", editoriales);
+        return "buscareditorial.html";
+    }
+
+    @GetMapping("/buscarlibro")
+    public String buscarelibro(ModelMap modelo) {
+        List<Libro> libros = libroRepositorio.findAll();
+        modelo.put("libros", libros);
+        return "buscarlibro.html";
+    }
+    //-------------------PRESTAMO LIBROS------------
+    @GetMapping("/prestarlibro/{id}")
+    public String prestarlibro(@PathVariable String id, ModelMap modelo) throws Excepciones {
+        List<Editorial> editoriales = editorialRepositorio.findAll();
+        modelo.put("editoriales", editoriales);
+        List<Autor> autores = autorRepositorio.findAll();
+        modelo.put("autores", autores);
+        modelo.put("libros", libroServicio.buscarLibroId(id));
+        return "/prestarlibro";
+    }
+
+    @PostMapping("/prestarlibro/{id}")
+    public String prestarlibro(@PathVariable String id, @RequestParam Integer ejemplaresPresta, ModelMap modelo) throws Excepciones {
+        try {
+            libroServicio.prestarLibro(id, ejemplaresPresta);
+            modelo.put("exito", "Libro prestado con exito");
+            List<Libro> libros = libroRepositorio.findAll();
+            modelo.put("libros", libros);
+        } catch (Excepciones ex) {
+            modelo.put("error", "Error al prestar libro");
+            modelo.put("libros", libroServicio.buscarLibroId(id));
+            return "/prestarlibro";
+        }
+        return "iniciolibro.html";
+    }
+
+    //--------------------DEVOLVER LIBRO------------
+    @GetMapping("/devolverlibro/{id}")
+    public String devolverlibro(@PathVariable String id, ModelMap modelo) throws Excepciones {
+        List<Editorial> editoriales = editorialRepositorio.findAll();
+        modelo.put("editoriales", editoriales);
+        List<Autor> autores = autorRepositorio.findAll();
+        modelo.put("autores", autores);
+        modelo.put("libros", libroServicio.buscarLibroId(id));
+        return "/devolverlibro";
+    }
+
+    @PostMapping("/devolverlibro/{id}")
+    public String devolverlibro(@PathVariable String id, @RequestParam Integer ejemplaresVuelta, ModelMap modelo) throws Excepciones {
+        try {
+            libroServicio.devolverLibro(id, ejemplaresVuelta);
+            modelo.put("exito", "Libro devuelto con exito");
+            List<Libro> libros = libroRepositorio.findAll();
+            modelo.put("libros", libros);
+        } catch (Excepciones ex) {
+            modelo.put("error", "Error al devolver libro, la cantidad es mayor que los ejemplares originales");
+            modelo.put("libros", libroServicio.buscarLibroId(id));
+            return "/devolverlibro";
+        }
+        return "iniciolibro";
+    }
 }

@@ -68,6 +68,21 @@ public class EditorialServicio {
             throw new Excepciones("No se encontró el nombre del Editorial");
         }
     }
+    
+    @Transactional
+    public void modificarEditorialId(String id, String nombrenuevo) throws Excepciones {
+        validarEditorialId(id);
+        validarEditorialNombre(nombrenuevo);
+
+        Optional<Editorial> respuesta = editorialRepositorio.findById(id);
+        if (respuesta.isPresent()) {
+            Editorial editorial = respuesta.get();
+            editorial.setNombre(nombrenuevo);
+            editorialRepositorio.save(editorial);
+        } else {
+            throw new Excepciones("No se encontró el id del Editorial");
+        }
+    }
 
     private void validarEditorialNombre(String nombre) throws Excepciones {
 
@@ -99,15 +114,13 @@ public class EditorialServicio {
         }
     }
 
-    private void buscarEditorialId(String id) throws Excepciones {
-
+    public Editorial buscarEditorialId(String id) throws Excepciones {
         validarEditorialId(id);
+        
         Optional<Editorial> respuesta = editorialRepositorio.findById(id);
+        Editorial editorial= respuesta.get();
         if (respuesta.isPresent()) {
-
-            Editorial editorial = respuesta.get();
-            editorial.getNombre();
-
+            return editorial;
         } else {
             throw new Excepciones("No se encontró el id del Editorial");
         }
