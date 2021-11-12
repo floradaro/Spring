@@ -78,11 +78,13 @@ public class PortalControlador {
     }
 
     //-------REGISTRO DE USUARIO
+    @PreAuthorize("hasAnyRole('ROLE_USUARIO_REGISTRADO')")
     @GetMapping("/registro")
     public String registro() {
         return "registro.html";
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_USUARIO_REGISTRADO')")
     @PostMapping("/registrar")
     public String registrar(ModelMap modelo, @RequestParam String nombre, @RequestParam String apellido, @RequestParam String mail, @RequestParam String clave1, @RequestParam String clave2) {
         try {
@@ -110,6 +112,7 @@ public class PortalControlador {
         return "editreg.html";
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_USUARIO_REGISTRADO')")
     @PostMapping("/editreg")
     public String editreg(ModelMap modelo, @RequestParam String nombre) {
 
@@ -130,11 +133,12 @@ public class PortalControlador {
         return "autreg.html";
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_USUARIO_REGISTRADO')")
     @PostMapping("/autreg")
-    public String autreg(ModelMap modelo, @RequestParam String nombre, @RequestParam String apellido) {
+    public String autreg(ModelMap modelo, @RequestParam String nombre, @RequestParam String apellido, MultipartFile archivo) {
         String completo = nombre + " " + apellido;
         try {
-            autorServicio.crearAutor(null, completo);
+            autorServicio.crearAutor(archivo, completo);
             modelo.put("exito", "Registro Exitoso!");
             return "autreg.html";
         } catch (Excepciones ex) {
@@ -184,6 +188,7 @@ public class PortalControlador {
     }
 
 //    //--------------MODIFICAR AUTOR--------------
+    @PreAuthorize("hasAnyRole('ROLE_USUARIO_REGISTRADO')")
     @GetMapping("/inicioautor")
     public String inicioautor(ModelMap modelo) {
         List<Autor> autores = autorRepositorio.findAll();
@@ -191,16 +196,18 @@ public class PortalControlador {
         return "inicioautor.html";
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_USUARIO_REGISTRADO')")
     @GetMapping("/modificarautor/{id}")
     public String modificarautor(@PathVariable String id, ModelMap modelo) throws Excepciones {
         modelo.put("autores", autorServicio.buscarAutorId(id));
         return "/modificarautor";
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_USUARIO_REGISTRADO')")
     @PostMapping("/modificarautor/{id}")
-    public String modificarautor(ModelMap modelo, @PathVariable String id, @RequestParam String nombre) throws Excepciones {
+    public String modificarautor(ModelMap modelo, @PathVariable String id, @RequestParam String nombre, MultipartFile archivo) throws Excepciones {
         try {
-            autorServicio.modificarAutorID(id, nombre);
+            autorServicio.modificarAutorID(id, nombre, archivo);
             modelo.put("exito", "Autor modificada con exito");
         } catch (Excepciones ex) {
             modelo.put("error", "Ingrese el nombre del Autor");
@@ -213,6 +220,7 @@ public class PortalControlador {
     }
 
 //    //--------------MODIFICAR EDITORIAL--------------
+    @PreAuthorize("hasAnyRole('ROLE_USUARIO_REGISTRADO')")
     @GetMapping("/inicioeditorial")
     public String inicioeditorial(ModelMap modelo) {
 
@@ -221,16 +229,18 @@ public class PortalControlador {
         return "inicioeditorial.html";
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_USUARIO_REGISTRADO')")
     @GetMapping("/modificareditorial/{id}")
     public String modificareditorial(@PathVariable String id, ModelMap modelo) throws Excepciones {
         modelo.put("editoriales", editorialServicio.buscarEditorialId(id));
         return "/modificareditorial";
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_USUARIO_REGISTRADO')")
     @PostMapping("/modificareditorial/{id}")
-    public String modificareditorial(ModelMap modelo, @PathVariable String id, @RequestParam String nombre) throws Excepciones {
+    public String modificareditorial(ModelMap modelo, @PathVariable String id, @RequestParam String nombre, MultipartFile archivo) throws Excepciones {
         try {
-            editorialServicio.modificarEditorialId(id, nombre);
+            editorialServicio.modificarEditorialId(id, nombre, archivo);
             modelo.put("exito", "Editorial modificada con exito");
         } catch (Excepciones ex) {
             modelo.put("error", "Ingrese el nombre de la Editorial ");
@@ -243,6 +253,7 @@ public class PortalControlador {
     }
 //    //--------------MODIFICAR Libros--------------
 
+    @PreAuthorize("hasAnyRole('ROLE_USUARIO_REGISTRADO')")
     @GetMapping("/iniciolibro")
     public String iniciolibro(ModelMap modelo) {
         List<Libro> libros = libroRepositorio.findAll();
@@ -250,6 +261,7 @@ public class PortalControlador {
         return "iniciolibro.html";
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_USUARIO_REGISTRADO')")
     @GetMapping("/modificarlibro/{id}")
     public String modificarlibro(@PathVariable String id, ModelMap modelo) throws Excepciones {
 
@@ -261,24 +273,24 @@ public class PortalControlador {
         return "/modificarlibro";
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_USUARIO_REGISTRADO')")
     @PostMapping("/modificarlibro/{id}")
-    public String modificarlibro(@PathVariable String id, @RequestParam String titulo, @RequestParam Integer anio, @RequestParam Integer ejemplares, @RequestParam String idautor, @RequestParam String ideditorial, ModelMap modelo) throws Excepciones {
+    public String modificarlibro(@PathVariable String id, @RequestParam String titulo, @RequestParam Integer anio, @RequestParam Integer ejemplares, @RequestParam String idautor, @RequestParam String ideditorial, ModelMap modelo, MultipartFile archivo) throws Excepciones {
         try {
-            libroServicio.modificarLibro(id, titulo, anio, ejemplares, idautor, ideditorial);
+            libroServicio.modificarLibro(id, titulo, anio, ejemplares, idautor, ideditorial, archivo);
             modelo.put("exito", "Libro modificado con exito");
             List<Libro> libros = libroRepositorio.findAll();
             modelo.put("libros", libros);
             return "/iniciolibro";
-            
+
         } catch (Excepciones ex) {
             modelo.put("libros", libroServicio.buscarLibroId(id));
             modelo.put("error", ex.getMessage());
             return "/modificarlibro.html";
         }
-         
     }
 
-    //-----------BUSCAR AUTOR
+    //-----------BUSCAR AUTOR------------
     @GetMapping("/buscarautor")
     public String buscarautor(ModelMap modelo) {
         List<Autor> autores = autorRepositorio.findAll();
@@ -300,6 +312,16 @@ public class PortalControlador {
         return "buscarlibro.html";
     }
     //-------------------PRESTAMO LIBROS------------
+
+    @PreAuthorize("hasAnyRole('ROLE_USUARIO_REGISTRADO')")
+    @GetMapping("/inicioprestamo")
+    public String inicioprestamo(ModelMap modelo) {
+        List<Libro> libros = libroRepositorio.findAll();
+        modelo.put("libros", libros);
+        return "inicioprestamo.html";
+    }
+
+    @PreAuthorize("hasAnyRole('ROLE_USUARIO_REGISTRADO')")
     @GetMapping("/prestarlibro/{id}")
     public String prestarlibro(@PathVariable String id, ModelMap modelo) throws Excepciones {
         List<Editorial> editoriales = editorialRepositorio.findAll();
@@ -310,6 +332,7 @@ public class PortalControlador {
         return "/prestarlibro";
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_USUARIO_REGISTRADO')")
     @PostMapping("/prestarlibro/{id}")
     public String prestarlibro(@PathVariable String id, @RequestParam Integer ejemplaresPresta, ModelMap modelo) throws Excepciones {
         try {
@@ -322,10 +345,11 @@ public class PortalControlador {
             modelo.put("libros", libroServicio.buscarLibroId(id));
             return "/prestarlibro";
         }
-        return "iniciolibro.html";
+        return "inicioprestamo.html";
     }
 
     //--------------------DEVOLVER LIBRO------------
+    @PreAuthorize("hasAnyRole('ROLE_USUARIO_REGISTRADO')")
     @GetMapping("/devolverlibro/{id}")
     public String devolverlibro(@PathVariable String id, ModelMap modelo) throws Excepciones {
         List<Editorial> editoriales = editorialRepositorio.findAll();
@@ -336,6 +360,7 @@ public class PortalControlador {
         return "/devolverlibro";
     }
 
+    @PreAuthorize("hasAnyRole('ROLE_USUARIO_REGISTRADO')")
     @PostMapping("/devolverlibro/{id}")
     public String devolverlibro(@PathVariable String id, @RequestParam Integer ejemplaresVuelta, ModelMap modelo) throws Excepciones {
         try {
@@ -348,6 +373,78 @@ public class PortalControlador {
             modelo.put("libros", libroServicio.buscarLibroId(id));
             return "/devolverlibro";
         }
-        return "iniciolibro";
+        return "inicioprestamo";
     }
+
+    @PreAuthorize("hasAnyRole('ROLE_USUARIO_REGISTRADO')")
+    @GetMapping("/baja/{id}")
+    public String baja(ModelMap modelo, @PathVariable String id) {
+        try {
+            libroServicio.darDeBaja(id);
+            return "redirect:/iniciolibro";
+        } catch (Excepciones e) {
+            return "redirect:/";
+        }
+    }
+
+    @PreAuthorize("hasAnyRole('ROLE_USUARIO_REGISTRADO')")
+    @GetMapping("/alta/{id}")
+    public String alta(ModelMap modelo, @PathVariable String id) {
+
+        try {
+            libroServicio.darDeAlta(id);
+            return "redirect:/iniciolibro";
+        } catch (Excepciones e) {
+            return "redirect:/";
+        }
+    }
+    //----------------ALTA Y BAJA AUTOR
+
+    @PreAuthorize("hasAnyRole('ROLE_USUARIO_REGISTRADO')")
+    @GetMapping("/bajaAutor/{id}")
+    public String bajaAutor(ModelMap modelo, @PathVariable String id) {
+        try {
+            autorServicio.darDeBaja(id);
+            return "redirect:/inicioautor";
+        } catch (Excepciones e) {
+            return "redirect:/";
+        }
+    }
+
+    @PreAuthorize("hasAnyRole('ROLE_USUARIO_REGISTRADO')")
+    @GetMapping("/altaAutor/{id}")
+    public String altaAutor(ModelMap modelo, @PathVariable String id) {
+
+        try {
+            autorServicio.darDeAlta(id);
+            return "redirect:/inicioautor";
+        } catch (Excepciones e) {
+            return "redirect:/";
+        }
+    }
+
+    @PreAuthorize("hasAnyRole('ROLE_USUARIO_REGISTRADO')")
+    @GetMapping("/bajaEditorial/{id}")
+    public String bajaEditorial(ModelMap modelo, @PathVariable String id) {
+        try {
+            editorialServicio.darDeBaja(id);
+            return "redirect:/inicioeditorial";
+        } catch (Excepciones e) {
+            return "redirect:/";
+        }
+    }
+
+    @PreAuthorize("hasAnyRole('ROLE_USUARIO_REGISTRADO')")
+    @GetMapping("/altaEditorial/{id}")
+    public String altaEditorial(ModelMap modelo, @PathVariable String id) {
+
+        try {
+            editorialServicio.darDeAlta(id);
+            return "redirect:/inicioeditorial";
+        } catch (Excepciones e) {
+            return "redirect:/";
+        }
+    }
+    //--------------FOTOS---------
+
 }

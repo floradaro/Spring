@@ -44,6 +44,12 @@
                             .centrado{
                                 align-items: center;
                             }
+                             .form-inline {
+                                width: 100%;
+                                text-align: center;
+                                float: none;
+                                display: inline-block;
+                            }
 
                         </style>
                         </head>
@@ -51,7 +57,7 @@
                         <body>
                             <nav class="navbar navbar-light navbar-expand-lg" style="background-color: rgb(226, 223, 223); ">
 
-                                <a class="navbar-link" href="/inicio"><img src="..//static/Imagenes/1519906869481.jpg"  width="30"
+                                <a class="navbar-link" href="/inicio"><img src="/Imagenes/chiquito.png"  width="30"
                                                                            height="30" class="d-inline-block align-top" alt=""></a>
 
                                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo02"
@@ -148,30 +154,22 @@
           <th scope="col">Año</th>
           <th scope="col">Ejemplares</th>
           <th scope="col">Foto</th>
-          <th scope="col">Alta/Baja</th>
-          <th scope="col">Acciones</th>
+          
+          
          
         </tr>
       </thead>
       <tbody th:each="libro : ${libros}">
-        <tr>
+          <tr style="text-align: center">
           
-          <td th:text="${libro.titulo}" style="width: 18%;"></td>
-          <td th:text="${libro.autor.nombre}"  style="width: 15%;"></td>
-          <td th:text="${libro.editorial.nombre}"></td>
+          <td th:text="${libro.titulo}" style="width: 20%;"></td>
+          <td th:text="${libro.autor.nombre}"  style="width: 20%;"></td>
+          <td th:text="${libro.editorial.nombre}"style="width: 20%;"></td>
           <td th:text="${libro.anio}"></td>
           <td th:text="${libro.ejemplares}"style="text-align:center"></td>
           <td><img class="bd-placeholder-img card-img-top" th:src="${libro.foto}" style="width: auto; height: 60px;"></td>
-          <td>
-              <i th:if="libro.alta" class="fa fa-circle text-success"></i>
-              <i th:unless="libro.alta"  class="fa fa-circle" style="color:red;"></i>
-          </td>
-          <td>
-                <a th:href= "@{/libro/alta/__${libro.id}__}"><i class="fa fa-arrow-up" style="color: green"></i></a> <!--FLECHITA-->
-		<a th:href= "@{/libro/baja/__${libro.id}__}"><i class="fa fa-ban" style="color: red"></i></a> 
-                <a th:href= "@{/libro/modificarLibro/__${libro.id}__}"><i class="fas fa-feather-alt" style="color: #ffcb00"></i></a>
-
-	  </td>
+         
+          
         </tr>
       </tbody>
     </table>

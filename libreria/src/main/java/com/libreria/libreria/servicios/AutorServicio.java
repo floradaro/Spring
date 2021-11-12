@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -44,32 +45,32 @@ public class AutorServicio {
         autorRepositorio.save(autor);
     }
 
-    @Transactional
-    public void modificarAutor(MultipartFile archivo, String id, String nombre) throws Excepciones {
-
-        validarAutorNombre(nombre);
-
-        Optional<Autor> respuesta = autorRepositorio.findById(id);
-        if (respuesta.isPresent()) {
-
-            Autor autor = respuesta.get();
-            autor.setNombre(nombre);
-
-            String idFoto = null;
-            if (autor.getFoto() != null) {
-                idFoto = autor.getFoto().getId();
-            }
-            Foto foto = fotoServicio.actualizar(idFoto, archivo);
-            autor.setFoto(foto);
-
-            autorRepositorio.save(autor);
-        } else {
-            throw new Excepciones("No se encontró el nombre del Autor");
-        }
-    }
+//    @Transactional
+//    public void modificarAutor(MultipartFile archivo, String id, String nombre) throws Excepciones {
+//
+//        validarAutorNombre(nombre);
+//
+//        Optional<Autor> respuesta = autorRepositorio.findById(id);
+//        if (respuesta.isPresent()) {
+//
+//            Autor autor = respuesta.get();
+//            autor.setNombre(nombre);
+//
+//            String idFoto = null;
+//            if (autor.getFoto() != null) {
+//                idFoto = autor.getFoto().getId();
+//            }
+//            Foto foto = fotoServicio.actualizar(idFoto, archivo);
+//            autor.setFoto(foto);
+//
+//            autorRepositorio.save(autor);
+//        } else {
+//            throw new Excepciones("No se encontró el nombre del Autor");
+//        }
+//    }
     
     @Transactional
-    public void modificarAutorID(String id,String nombrenuevo) throws Excepciones {
+    public void modificarAutorID(String id,String nombrenuevo, MultipartFile archivo ) throws Excepciones {
         validarAutorId(id);
         validarAutorNombre(nombrenuevo);
 
@@ -78,6 +79,13 @@ public class AutorServicio {
 
             Autor autor = respuesta.get();
             autor.setNombre(nombrenuevo);
+            
+            String idFoto = null;
+            if (autor.getFoto() != null) {
+                idFoto = autor.getFoto().getId();
+            }
+            Foto foto = fotoServicio.actualizar(idFoto, archivo);
+            autor.setFoto(foto);
 
             autorRepositorio.save(autor);
         } else {
@@ -145,4 +153,52 @@ public class AutorServicio {
         
         return autores;
     }
+    //---------------ALYA Y BAJA ------------
+    
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class})
+    
+    public void darDeBaja(String id) throws Excepciones {
+        Optional<Autor> respuesta = autorRepositorio.findById(id);
+        if (respuesta.isPresent()) {
+            Autor autor = respuesta.get();
+            autor.setAlta(Boolean.FALSE);
+            autorRepositorio.save(autor);
+        } else {
+            throw new Excepciones("No se encontro el autor");
+        }
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class})
+    public void darDeAlta(String id) throws Excepciones {
+        Optional<Autor> respuesta = autorRepositorio.findById(id);
+        if (respuesta.isPresent()) {
+            Autor autor = respuesta.get();
+            autor.setAlta(Boolean.TRUE);
+            autorRepositorio.save(autor);
+        } else {
+            throw new Excepciones("No se encontro el autor");
+        }
+    }
+    
+    @Transactional(readOnly=true)
+    public Autor getOne(String id){
+        return autorRepositorio.getOne(id);
+    }
+    
+    @Transactional(readOnly = true)
+    public List<Autor> listarAltas() {
+        return autorRepositorio.buscarActivos();
+    }
+    
+    @Transactional(readOnly = true)
+    public List<Autor> listarBajas() {
+        return autorRepositorio.buscarBajas();
+    }
+
+    @Transactional(readOnly = true)
+    public List<Autor> listarTodos() {
+        return autorRepositorio.findAll();
+    }
+    
+    
 }

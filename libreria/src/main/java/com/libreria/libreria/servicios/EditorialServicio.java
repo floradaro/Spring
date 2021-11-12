@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -44,33 +45,33 @@ public class EditorialServicio {
         editorialRepositorio.save(editorial);
     }
 
-    @Transactional
-    public void modificarEditorial(MultipartFile archivo, String id, String nombre) throws Excepciones {
-
-        validarEditorialNombre(nombre);
-
-        Optional<Editorial> respuesta = editorialRepositorio.findById(id);
-        if (respuesta.isPresent()) {
-
-            Editorial editorial = respuesta.get();
-            editorial.setNombre(nombre);
-
-            String idFoto = null;
-            if (editorial.getFoto() != null) {
-                idFoto = editorial.getFoto().getId();
-            }
-
-            Foto foto = fotoServicio.actualizar(idFoto, archivo);
-            editorial.setFoto(foto);
-
-            editorialRepositorio.save(editorial);
-        } else {
-            throw new Excepciones("No se encontró el nombre del Editorial");
-        }
-    }
+//    @Transactional
+//    public void modificarEditorial(MultipartFile archivo, String id, String nombre) throws Excepciones {
+//
+//        validarEditorialNombre(nombre);
+//
+//        Optional<Editorial> respuesta = editorialRepositorio.findById(id);
+//        if (respuesta.isPresent()) {
+//
+//            Editorial editorial = respuesta.get();
+//            editorial.setNombre(nombre);
+//
+//            String idFoto = null;
+//            if (editorial.getFoto() != null) {
+//                idFoto = editorial.getFoto().getId();
+//            }
+//
+//            Foto foto = fotoServicio.actualizar(idFoto, archivo);
+//            editorial.setFoto(foto);
+//
+//            editorialRepositorio.save(editorial);
+//        } else {
+//            throw new Excepciones("No se encontró el nombre del Editorial");
+//        }
+//    }
     
     @Transactional
-    public void modificarEditorialId(String id, String nombrenuevo) throws Excepciones {
+    public void modificarEditorialId(String id, String nombrenuevo, MultipartFile archivo) throws Excepciones {
         validarEditorialId(id);
         validarEditorialNombre(nombrenuevo);
 
@@ -78,6 +79,14 @@ public class EditorialServicio {
         if (respuesta.isPresent()) {
             Editorial editorial = respuesta.get();
             editorial.setNombre(nombrenuevo);
+            
+            String idFoto = null;
+            if (editorial.getFoto() != null) {
+                idFoto = editorial.getFoto().getId();
+            }
+            Foto foto = fotoServicio.actualizar(idFoto, archivo);
+            editorial.setFoto(foto);
+            
             editorialRepositorio.save(editorial);
         } else {
             throw new Excepciones("No se encontró el id del Editorial");
@@ -136,6 +145,31 @@ public class EditorialServicio {
             }
         } else {
             throw new Excepciones("No se encontró el nombre de la Editorial");
+        }
+    }
+    
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class})
+    
+    public void darDeBaja(String id) throws Excepciones {
+        Optional<Editorial> respuesta = editorialRepositorio.findById(id);
+        if (respuesta.isPresent()) {
+            Editorial editorial = respuesta.get();
+            editorial.setAlta(Boolean.FALSE);
+            editorialRepositorio.save(editorial);
+        } else {
+            throw new Excepciones("No se encontro el editorial");
+        }
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class})
+    public void darDeAlta(String id) throws Excepciones {
+        Optional<Editorial> respuesta = editorialRepositorio.findById(id);
+        if (respuesta.isPresent()) {
+            Editorial editorial = respuesta.get();
+            editorial.setAlta(Boolean.TRUE);
+            editorialRepositorio.save(editorial);
+        } else {
+            throw new Excepciones("No se encontro el autor");
         }
     }
 }

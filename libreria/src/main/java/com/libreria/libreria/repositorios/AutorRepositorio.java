@@ -37,4 +37,12 @@ public interface AutorRepositorio extends JpaRepository<Autor, String> {
     // Parametros
     @Query("SELECT a FROM Autor a WHERE a.nombre LIKE :nombre ORDER BY a.nombre DESC")
     public List<Autor> listarNombresAutores(@Param("nombre") String nombre);
+    
+    @Query("SELECT a from Autor a WHERE a.alta = true ")
+	public List<Autor> buscarActivos();
+        @Query("SELECT a from Autor a WHERE a.alta = false ")
+	public List<Autor> buscarBajas();
+        
+
+        
 }
