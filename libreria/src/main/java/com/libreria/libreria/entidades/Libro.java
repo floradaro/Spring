@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.libreria.libreria.entidades;
 
 import javax.persistence.Column;
@@ -13,10 +8,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import org.hibernate.annotations.GenericGenerator;
 
-/**
- *
- * @author flora
- */
 @Entity
 public class Libro {
 
@@ -24,22 +15,30 @@ public class Libro {
     @GeneratedValue(generator = "uuid")
     @GenericGenerator(name = "uuid", strategy = "uuid2")
     private String id;
+
     private Long isbn;
-    
-    @Column (unique = true)
+
+    @Column(unique = true)
     private String titulo;
-    
+
     private Integer anio;
+
     private Integer ejemplares;
+
     private Integer ejemplaresPrestados;
+
     private Integer ejemplaresRestantes;
+
     private Boolean alta;
 
-    @ManyToOne //muchos libros para un autor
+    @ManyToOne
     private Autor autor;
 
-    @ManyToOne // muchos libros para una editorial
+    @ManyToOne
     private Editorial editorial;
+
+    @ManyToOne
+    private Cliente cliente;
 
     @OneToOne
     private Foto foto;
@@ -132,10 +131,16 @@ public class Libro {
         this.foto = foto;
     }
 
-    
-    @Override
-    public String toString() {
-        return "Libro{" + "id=" + getId() + ", isbn=" + getIsbn() + ", titulo=" + getTitulo() + ", anio=" + getAnio() + ", ejemplares=" + getEjemplares() + ", ejemplaresPrestados=" + getEjemplaresPrestados() + ", ejemplaresRestantes=" + getEjemplaresRestantes() + ", alta=" + getAlta() + ", autor=" + getAutor() + ", editorial=" + getEditorial() + '}';
+    public Cliente getCliente() {
+        return cliente;
     }
 
+    public void setCliente(Cliente cliente) {
+        this.cliente = cliente;
+    }
+
+    @Override
+    public String toString() {
+        return "Libro{" + "id=" + id + ", isbn=" + isbn + ", titulo=" + titulo + ", anio=" + anio + ", ejemplares=" + ejemplares + ", ejemplaresPrestados=" + ejemplaresPrestados + ", ejemplaresRestantes=" + ejemplaresRestantes + ", alta=" + alta + ", autor=" + autor + ", editorial=" + editorial + ", cliente=" + cliente + ", foto=" + foto + '}';
+    }
 }

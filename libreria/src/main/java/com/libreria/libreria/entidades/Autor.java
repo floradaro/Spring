@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.libreria.libreria.entidades;
 
 import javax.persistence.Column;
@@ -12,10 +7,6 @@ import javax.persistence.Id;
 import javax.persistence.OneToOne;
 import org.hibernate.annotations.GenericGenerator;
 
-/**
- *
- * @author flora
- */
 @Entity
 public class Autor {
 
@@ -26,6 +17,7 @@ public class Autor {
 
     @Column
     private String nombre;
+
     private Boolean alta;
 
     @OneToOne
@@ -67,7 +59,4 @@ public class Autor {
     public String toString() {
         return "Autor{" + "id=" + id + ", nombre=" + nombre + ", alta=" + alta + ", foto=" + foto + '}';
     }
-
-    
-
 }

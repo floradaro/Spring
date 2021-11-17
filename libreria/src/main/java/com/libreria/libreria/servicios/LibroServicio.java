@@ -194,20 +194,27 @@ public class LibroServicio {
         }
         return libro;
     }
-//
-//    private void buscarLibrotitulo(String id) throws Excepciones {
-//
-//        validarLibroId(id);
-//        Optional<Libro> respuesta = libroRepositorio.findById(id);
-//        if (respuesta.isPresent()) {
-//
-//            Libro libro = respuesta.get();
-//            libro.getTitulo();
-//
-//        } else {
-//            throw new Excepciones("No se encontró el titulo del Libro");
-//        }
-//    }
+    
+    public List<Libro> buscarPorParametro(String titulo) {
+		return libroRepositorio.searchAssetsByParam(titulo);
+	}
+
+    @Transactional
+    public List<Libro> busquedaLibroNombre(String titulo) throws Excepciones {       
+        List<Libro> respuesta = libroRepositorio.buscarLibrosPorTitulo(titulo);
+        return respuesta;
+    }
+    @Transactional
+    public List<Libro> busquedaLibroAutor(String titulo) throws Excepciones {       
+
+        List<Libro> respuesta = libroRepositorio.buscarLibrosPorAutorNombre(titulo);
+        return respuesta;
+    }
+    @Transactional
+    public List<Libro> busquedaLibroEditorial(String titulo) throws Excepciones {       
+        List<Libro> respuesta = libroRepositorio.buscarLibrosPorEditorialNombre(titulo);
+        return respuesta;
+    }
 
     @Transactional(readOnly = true)
     public Libro getOne(String id) {
@@ -257,6 +264,7 @@ public class LibroServicio {
                     throw new Excepciones("No hay suficientes libros para prestar");
                 }
             }
+            
             libroRepositorio.save(libro);
         }
     }

@@ -63,25 +63,24 @@ private EditorialServicio editorialServicio;
     }
     
     @GetMapping("/autor")
-    public ResponseEntity<byte[]> fotoAutor(@RequestParam String id){
-    try {
-        Autor autor = autorServicio.buscarAutorId(id);
-        if(autor.getFoto() == null){
+    public ResponseEntity<byte[]> fotoAutor(@RequestParam String id) {
+        try {
+            Autor autor = autorServicio.buscarAutorId(id);
+            if (autor.getFoto() == null) {
                 throw new Excepciones("El Autor no tiene una imagen");
             }
-        
-        byte [] foto = autor.getFoto().getContenido();
-        
-        HttpHeaders headers = new HttpHeaders();
+
+            byte[] foto = autor.getFoto().getContenido();
+
+            HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.IMAGE_JPEG);
-        
-        return new ResponseEntity<>(foto, headers, HttpStatus.OK);
-    } catch (Excepciones ex) {
-        Logger.getLogger(FotoControlador.class.getName()).log(Level.SEVERE, null, ex);
-         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-    }
-        
-        
+
+            return new ResponseEntity<>(foto, headers, HttpStatus.OK);
+        } catch (Excepciones ex) {
+            Logger.getLogger(FotoControlador.class.getName()).log(Level.SEVERE, null, ex);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
     }
     
     @GetMapping("/editorial")

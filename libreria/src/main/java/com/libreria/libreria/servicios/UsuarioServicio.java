@@ -58,7 +58,7 @@ public class UsuarioServicio implements UserDetailsService {
         usuario.setFoto(foto);
         usuarioRepositorio.save(usuario);
 
-//        notificacionServicio.enviar("Bienvenidos a la Libreria", "Libreria Egg", usuario.getMail());
+        notificacionServicio.enviar("Bienvenidos a la Libreria", "Libreria Egg", usuario.getMail());
 
     }
 
@@ -161,5 +161,9 @@ public class UsuarioServicio implements UserDetailsService {
         } else {
             return null;
         }
+    }
+
+    public void registrar(Object object, String nombre, String apellido, Long documento, Long telefono) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

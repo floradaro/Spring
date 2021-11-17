@@ -106,23 +106,23 @@ public class EditorialServicio {
             throw new Excepciones("El nombre del editorial no puede ser nulo");
         }
     }
-
-    @Transactional
-    private void darDeBajaEditorial(String id) throws Excepciones {
-
-        validarEditorialId(id);
-        Optional<Editorial> respuesta = editorialRepositorio.findById(id);
-        if (respuesta.isPresent()) {
-
-            Editorial editorial = respuesta.get();
-            editorial.setAlta(false);
-
-            editorialRepositorio.save(editorial);
-        } else {
-            throw new Excepciones("No se encontró el id del Editorial");
-        }
-    }
-
+//
+//    @Transactional
+//    private void darDeBajaEditorial(String id) throws Excepciones {
+//
+//        validarEditorialId(id);
+//        Optional<Editorial> respuesta = editorialRepositorio.findById(id);
+//        if (respuesta.isPresent()) {
+//
+//            Editorial editorial = respuesta.get();
+//            editorial.setAlta(false);
+//
+//            editorialRepositorio.save(editorial);
+//        } else {
+//            throw new Excepciones("No se encontró el id del Editorial");
+//        }
+//    }
+//-----------BUSQUEDA-------------
     public Editorial buscarEditorialId(String id) throws Excepciones {
         validarEditorialId(id);
         

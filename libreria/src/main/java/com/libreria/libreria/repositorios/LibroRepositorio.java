@@ -20,22 +20,15 @@ import org.springframework.stereotype.Repository;
 public interface LibroRepositorio extends JpaRepository<Libro, String> {
 
     //Por Id
-    
     @Query("SELECT a FROM Libro a WHERE a.id = :id")
     public List<Libro> buscarLibrosPorId(@Param("id") String id);
-    
+
     @Query("SELECT a FROM Libro a WHERE a.autor.id = :id")
     public List<Libro> buscarLibrosPorAutor(@Param("id") String id);
 
     @Query("SELECT a FROM Libro a WHERE a.editorial.id = :id")
     public List<Libro> buscarLibrosPorEditorial(@Param("id") String id);
 
-    // Por nombre
-    @Query("SELECT a FROM Libro a WHERE a.autor.nombre = :nombre ORDER BY a.autor.nombre DESC")
-    public List<Libro> buscarLibrosPorAutorNombre(@Param("nombre") String nombre);
-
-    @Query("SELECT a FROM Libro a WHERE a.editorial.nombre = :nombre ORDER BY a.editorial.nombre DESC")
-    public List<Libro> buscarLibrosPorEditorialNombre(@Param("nombre") String nombre);
 
     //Por libro
     @Query("SELECT a from Libro a WHERE a.alta = true AND a.titulo LIKE :titulo ORDER BY a.titulo DESC")
@@ -46,7 +39,21 @@ public interface LibroRepositorio extends JpaRepository<Libro, String> {
 
     @Query("SELECT a FROM Libro a ORDER BY a.titulo DESC")
     public List<Libro> listarLibros();
-    
+
     @Query("SELECT a from Libro a WHERE a.alta = true ")
-	public List<Libro> buscarActivos();
+    public List<Libro> buscarActivos();
+
+    
+    
+    @Query("SELECT l FROM Libro l WHERE l.autor.nombre LIKE %:titulo%")
+    public List<Libro> buscarLibrosPorAutorNombre(@Param("titulo") String titulo);
+
+    @Query("SELECT l FROM Libro l WHERE l.editorial.nombre LIKE %:titulo%")
+    public List<Libro> buscarLibrosPorEditorialNombre(@Param("titulo") String titulo);
+    
+    @Query("SELECT l FROM Libro l WHERE l.titulo LIKE %:titulo%")
+    public List<Libro> buscarLibrosPorTitulo(@Param("titulo") String titulo);
+    
+    @Query("SELECT a from Libro a WHERE a.autor.nombre LIKE %:titulo% OR a.editorial.nombre LIKE %:titulo% OR a.titulo LIKE %:titulo%")
+	public List<Libro> searchAssetsByParam(@Param("titulo") String q);
 }

@@ -6,14 +6,17 @@
 package com.libreria.libreria.controlador;
 
 import com.libreria.libreria.entidades.Autor;
+import com.libreria.libreria.entidades.Cliente;
 import com.libreria.libreria.entidades.Editorial;
 import com.libreria.libreria.entidades.Libro;
 import com.libreria.libreria.excepciones.Excepciones;
 import com.libreria.libreria.repositorios.AutorRepositorio;
+import com.libreria.libreria.repositorios.ClienteRepositorio;
 import com.libreria.libreria.repositorios.EditorialRepositorio;
 import com.libreria.libreria.repositorios.LibroRepositorio;
 import com.libreria.libreria.repositorios.UsuarioRepositorio;
 import com.libreria.libreria.servicios.AutorServicio;
+import com.libreria.libreria.servicios.ClienteServicio;
 import com.libreria.libreria.servicios.EditorialServicio;
 import com.libreria.libreria.servicios.LibroServicio;
 import com.libreria.libreria.servicios.UsuarioServicio;
@@ -48,11 +51,15 @@ public class PortalControlador {
     @Autowired
     private UsuarioServicio usuarioServicio;
     @Autowired
+    private ClienteServicio clienteServicio;
+    @Autowired
     private EditorialRepositorio editorialRepositorio;
     @Autowired
     private AutorRepositorio autorRepositorio;
     @Autowired
     private LibroRepositorio libroRepositorio;
+    @Autowired
+    private ClienteRepositorio clienteRepositorio;
 
     @GetMapping("/")
     public String index() {
@@ -290,29 +297,34 @@ public class PortalControlador {
         }
     }
 
-    //-----------BUSCAR AUTOR------------
-    @GetMapping("/buscarautor")
-    public String buscarautor(ModelMap modelo) {
-        List<Autor> autores = autorRepositorio.findAll();
-        modelo.put("autores", autores);
-        return "buscarautor.html";
+    //-----------BUSCAR------------
+    @PreAuthorize("hasAnyRole('ROLE_USUARIO_REGISTRADO')")
+    @GetMapping("/busqueda")
+    public String busquedaLibroNombre(ModelMap modelo, @RequestParam String titulo) throws Excepciones {
+
+        List<Libro> libros = libroServicio.buscarPorParametro(titulo);
+
+        if (libros != null) {
+            modelo.put("libros", libros);
+            return "/busqueda";
+        }
+        return "/busqueda";
+    }
+    
+    
+    @GetMapping("/busqueda1")
+    public String busquedaLibroNombre1(ModelMap modelo, @RequestParam String titulo) throws Excepciones {
+
+        List<Libro> libros = libroServicio.buscarPorParametro(titulo);
+
+        if (libros != null) {
+            modelo.put("libros", libros);
+            return "/busqueda1";
+        }
+        return "/busqueda1";
     }
 
-    @GetMapping("/buscareditorial")
-    public String buscareditorial(ModelMap modelo) {
-        List<Editorial> editoriales = editorialRepositorio.findAll();
-        modelo.put("editoriales", editoriales);
-        return "buscareditorial.html";
-    }
-
-    @GetMapping("/buscarlibro")
-    public String buscarelibro(ModelMap modelo) {
-        List<Libro> libros = libroRepositorio.findAll();
-        modelo.put("libros", libros);
-        return "buscarlibro.html";
-    }
     //-------------------PRESTAMO LIBROS------------
-
     @PreAuthorize("hasAnyRole('ROLE_USUARIO_REGISTRADO')")
     @GetMapping("/inicioprestamo")
     public String inicioprestamo(ModelMap modelo) {
@@ -328,6 +340,8 @@ public class PortalControlador {
         modelo.put("editoriales", editoriales);
         List<Autor> autores = autorRepositorio.findAll();
         modelo.put("autores", autores);
+        List<Cliente> clientes = clienteRepositorio.findAll();
+        modelo.put("clientes", clientes);
         modelo.put("libros", libroServicio.buscarLibroId(id));
         return "/prestarlibro";
     }
@@ -356,6 +370,8 @@ public class PortalControlador {
         modelo.put("editoriales", editoriales);
         List<Autor> autores = autorRepositorio.findAll();
         modelo.put("autores", autores);
+        List<Cliente> clientes = clienteRepositorio.findAll();
+        modelo.put("clientes", clientes);
         modelo.put("libros", libroServicio.buscarLibroId(id));
         return "/devolverlibro";
     }
@@ -445,6 +461,43 @@ public class PortalControlador {
             return "redirect:/";
         }
     }
-    //--------------FOTOS---------
+    //--------------clientes--------
 
+    @PreAuthorize("hasAnyRole('ROLE_USUARIO_REGISTRADO')")
+    @GetMapping("/clientes")
+    public String clientes() {
+        return "clientes.html";
+    }
+    
+     @PreAuthorize("hasAnyRole('ROLE_USUARIO_REGISTRADO')")
+    @GetMapping("/iniciocliente")
+    public String iniciocliente(ModelMap modelo) {
+        List<Cliente> clientes = clienteRepositorio.findAll();
+        modelo.put("clientes", clientes);
+        return "iniciocliente.html";
+    }
+
+    @PreAuthorize("hasAnyRole('ROLE_USUARIO_REGISTRADO')")
+    @PostMapping("/clientes")
+    public String clientes(MultipartFile archivo, ModelMap modelo, @RequestParam String nombre, @RequestParam String apellido, @RequestParam Long documento, @RequestParam Long telefono ){
+        String completo = nombre + " " + apellido;
+        try {
+            clienteServicio.crearCliente(archivo, nombre, documento, telefono);
+            modelo.put("exito", "Registro Exitoso!");
+            return "clientes.html";
+
+        } catch (Excepciones e) {
+            modelo.put("error", e.getMessage());
+            modelo.put("nombre", nombre);
+            modelo.put("documento", documento);
+            modelo.put("telefono", telefono);
+
+   
+
+            return "clientes.html";
+        }
+
+    }
+    
+   
 }

@@ -28,7 +28,7 @@
 
     <div class="collapse navbar-collapse" id="navbarTogglerDemo02">
       <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
-       <!-- <li class="nav-item active">
+        <li class="nav-item active">
           <a class="nav-link" href="/buscarlibro" style="color: grey;">Libros<span class="sr-only">(current)</span></a>
         </li>
         <li class="nav-item">
@@ -36,7 +36,7 @@
         </li>
         <li class="nav-item">
           <a class="nav-link" href="/buscareditorial" style="color: grey;">Editoriales</a>
-        </li>-->
+        </li>
       </ul>
       <form class="form-inline my-2 my-lg-0 " id="alinea" action="/busqueda1">
                                         <input class="form-control mr-sm-2" type="search" placeholder="Buscar" name="titulo">
@@ -48,89 +48,59 @@
     
     </div>
 
-  </nav>
-
-  <h1>Libreria EGG</h1>
-  <div style="text-align: center;">
-    <img src="../imagenes/fondo1.png" class="img-fluid .max-width: 100% .height: auto" alt="Responsive image"
-      style="text-align: center">
+  </nav> 
+     <h1>Libreria EGG</h1>
+  <div class="container-fluid" style="background-color: #ffcb00;text-align: center;">
+    <h1 style="font-size: 30px;text-align: left; color: black;">Busqueda</h1>
+  </div>
+ 
+  <div class="container-fluid" style="width: 100%;">
+    <table class="table table-active">
+      <thead>
+        <tr class="centrado">
+          <th scope="col">Titulo</th>
+          <th scope="col">Autor</th>
+          <th scope="col">Editorial</th>
+          <th scope="col">Año</th>
+          <th scope="col">Ejemplares</th>
+          <th scope="col">Foto</th> 
+        </tr>
+      </thead>
+      <tbody th:each="libro : ${libros}">
+        <tr>
+          <td th:text="${libro.titulo}" style="width: 20%;"></td>
+          <td th:text="${libro.autor.nombre}" style="width: 15%;"></td>
+          <td th:text="${libro.editorial.nombre}" style="width: 15%;"></td>
+          <td th:text="${libro.anio}"></td>
+          <td th:text="${libro.ejemplares}" style="text-align:center" id="ejemplares"></td>
+          <td><a class="link" th:href="${'/foto/libro?id='+libro.id}"><img class="bd-placeholder-img card-img-top" th:src="${'/foto/libro?id='+libro.id}"
+              style="width: auto; height: 60px;"></a>
+          </td>
+         
+          <td>
+            <a th:href="@{/devolver/__${libro.id}__}"><i class="fa fa-arrow-circle-down" aria-hidden="true"></i></a>
+            <a th:href="@{/prestar/__${libro.id}__}"><i class="fa fa-arrow-circle-up" aria-hidden="true"></i></a>
+            <a th:href="@{/alta/__${libro.id}__}"><i class="fa fa-check-circle" aria-hidden="true" style="color: green"></i></a>
+            <a th:href="@{/baja/__${libro.id}__}"><i class="fa fa-ban" style="color: red"></i></a>
+            <a th:href="@{/modificarlibro/__${libro.id}__}"><i class="fa fa-book" aria-hidden="true" style="color: #ffcb00"></i></a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 
-  <section>
-    <div class="container">
-      <div class="row align-items-center">
-        <div class="col-lg-6 order-lg-2">
-          <div class="p-5">
-            <img class="img-fluid rounded-circle" src="../Imagenes/toca_codigo_desde_el_primer_dia.png" alt="">
-          </div>
-        </div>
-        <div class="col-lg-6 order-lg-1">
-          <div class="p-5">
-            <h2 class="display-4"><a  style="color: black;">Busca por Libros</a></h2>
-            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quod aliquid, mollitia odio veniam sit iste
-              esse assumenda amet aperiam exercitationem, ea animi blanditiis recusandae! Ratione voluptatum molestiae
-              adipisci, beatae obcaecati.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section>
-    <div class="container">
-      <div class="row align-items-center">
-        <div class="col-lg-6">
-          <div class="p-5">
-            <img class="img-fluid rounded-circle" src="../Imagenes/dual_block_impacto.png" alt="">
-          </div>
-        </div>
-        <div class="col-lg-6">
-          <div class="p-5">
-            <h2 class="display-4"><a  style="color: black;">Busca por Autores</a></h2>
-            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quod aliquid, mollitia odio veniam sit iste
-              esse assumenda amet aperiam exercitationem, ea animi blanditiis recusandae! Ratione voluptatum molestiae
-              adipisci, beatae obcaecati.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section>
-    <div class="container">
-      <div class="row align-items-center">
-        <div class="col-lg-6 order-lg-2">
-          <div class="p-5">
-            <img class="img-fluid rounded-circle" src="../Imagenes/somos_egg_school.jpg" alt="">
-          </div>
-        </div>
-        <div class="col-lg-6 order-lg-1">
-          <div class="p-5">
-            <h2 class="display-4"><a  style="color: black;">Busca por Editorial</a></h2>
-            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Quod aliquid, mollitia odio veniam sit iste
-              esse assumenda amet aperiam exercitationem, ea animi blanditiis recusandae! Ratione voluptatum molestiae
-              adipisci, beatae obcaecati.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Footer -->
   <footer class="py-5 bg-black">
     <div class="container">
       <p class="m-0 text-center text-white small">Copyright &copy; Your Website 2019</p>
     </div>
     <!-- /.container -->
   </footer>
-
   <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
     integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
     crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js"
     integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx"
     crossorigin="anonymous"></script>
-
 </body>
 
 </html>

@@ -121,7 +121,7 @@ public class AutorServicio {
             throw new Excepciones("No se encontró el id del Autor");
         }
     }
-
+//-------------BUSQUEDA----------
     public Autor buscarAutorId(String id) throws Excepciones {
         validarAutorId(id);
 

@@ -20,8 +20,8 @@ import org.hibernate.annotations.GenericGenerator;
  */
 @Entity
 public class Prestamo {
-    
-@Id
+
+    @Id
     @GeneratedValue(generator = "uuid")
     @GenericGenerator(name = "uuid", strategy = "uuid2")
     private String id;
@@ -35,8 +35,9 @@ public class Prestamo {
 
     @OneToOne
     private Libro libro;
+    
     @OneToOne
-    private Usuario cliente;
+    private Cliente cliente;
 
     public String getId() {
         return id;
@@ -78,13 +79,12 @@ public class Prestamo {
         this.libro = libro;
     }
 
-    public Usuario getCliente() {
+    public Cliente getCliente() {
         return cliente;
     }
 
-    public void setCliente(Usuario cliente) {
+    public void setCliente(Cliente cliente) {
         this.cliente = cliente;
     }
 
 }
-
