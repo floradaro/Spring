@@ -14,15 +14,15 @@ import com.libreria.libreria.repositorios.AutorRepositorio;
 import com.libreria.libreria.repositorios.ClienteRepositorio;
 import com.libreria.libreria.repositorios.EditorialRepositorio;
 import com.libreria.libreria.repositorios.LibroRepositorio;
+import com.libreria.libreria.repositorios.PrestamoRepositorio;
 import com.libreria.libreria.repositorios.UsuarioRepositorio;
 import com.libreria.libreria.servicios.AutorServicio;
 import com.libreria.libreria.servicios.ClienteServicio;
 import com.libreria.libreria.servicios.EditorialServicio;
 import com.libreria.libreria.servicios.LibroServicio;
+import com.libreria.libreria.servicios.PrestamoServicio;
 import com.libreria.libreria.servicios.UsuarioServicio;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -53,6 +53,8 @@ public class PortalControlador {
     @Autowired
     private ClienteServicio clienteServicio;
     @Autowired
+    private PrestamoServicio prestamoServicio;
+    @Autowired
     private EditorialRepositorio editorialRepositorio;
     @Autowired
     private AutorRepositorio autorRepositorio;
@@ -60,6 +62,8 @@ public class PortalControlador {
     private LibroRepositorio libroRepositorio;
     @Autowired
     private ClienteRepositorio clienteRepositorio;
+////     @Autowired
+////    private PrestamoRepositorio prestamoRepositorio;
 
     @GetMapping("/")
     public String index() {
@@ -310,8 +314,7 @@ public class PortalControlador {
         }
         return "/busqueda";
     }
-    
-    
+
     @GetMapping("/busqueda1")
     public String busquedaLibroNombre1(ModelMap modelo, @RequestParam String titulo) throws Excepciones {
 
@@ -333,46 +336,45 @@ public class PortalControlador {
         return "inicioprestamo.html";
     }
 
+    //-------------------PRESTAR LIBROS------------
     @PreAuthorize("hasAnyRole('ROLE_USUARIO_REGISTRADO')")
     @GetMapping("/prestarlibro/{id}")
-    public String prestarlibro(@PathVariable String id, ModelMap modelo) throws Excepciones {
-        List<Editorial> editoriales = editorialRepositorio.findAll();
-        modelo.put("editoriales", editoriales);
-        List<Autor> autores = autorRepositorio.findAll();
-        modelo.put("autores", autores);
+    public String prestar(@PathVariable String id, ModelMap modelo) throws Excepciones {
+        Libro libro = libroRepositorio.buscarLibroPorId(id);
+        modelo.put("libros", libro);
         List<Cliente> clientes = clienteRepositorio.findAll();
-        modelo.put("clientes", clientes);
-        modelo.put("libros", libroServicio.buscarLibroId(id));
-        return "/prestarlibro";
+        modelo.put("clientes",clientes);
+        return "prestarlibro.html";
     }
-
     @PreAuthorize("hasAnyRole('ROLE_USUARIO_REGISTRADO')")
     @PostMapping("/prestarlibro/{id}")
-    public String prestarlibro(@PathVariable String id, @RequestParam Integer ejemplaresPresta, ModelMap modelo) throws Excepciones {
+    public String prestar(@PathVariable String id, @RequestParam String idcliente, ModelMap modelo) throws Excepciones {
         try {
-            libroServicio.prestarLibro(id, ejemplaresPresta);
-            modelo.put("exito", "Libro prestado con exito");
+            libroServicio.prestarLibro(id,idcliente);
+            modelo.put("exito", "Libro modificado con exito");
             List<Libro> libros = libroRepositorio.findAll();
             modelo.put("libros", libros);
+            return "inicioprestamo.html";
+
         } catch (Excepciones ex) {
-            modelo.put("error", "Error al prestar libro");
+            modelo.put("error", ex.getMessage());
+            List<Editorial> editoriales = editorialRepositorio.findAll();
+            modelo.put("editoriales", editoriales);
+            List<Autor> autores = autorRepositorio.findAll();
+            modelo.put("autores", autores);
             modelo.put("libros", libroServicio.buscarLibroId(id));
             return "/prestarlibro";
         }
-        return "inicioprestamo.html";
     }
 
     //--------------------DEVOLVER LIBRO------------
     @PreAuthorize("hasAnyRole('ROLE_USUARIO_REGISTRADO')")
     @GetMapping("/devolverlibro/{id}")
     public String devolverlibro(@PathVariable String id, ModelMap modelo) throws Excepciones {
-        List<Editorial> editoriales = editorialRepositorio.findAll();
-        modelo.put("editoriales", editoriales);
-        List<Autor> autores = autorRepositorio.findAll();
-        modelo.put("autores", autores);
+        Libro libro = libroRepositorio.buscarLibroPorId(id);
+        modelo.put("libros", libro);
         List<Cliente> clientes = clienteRepositorio.findAll();
-        modelo.put("clientes", clientes);
-        modelo.put("libros", libroServicio.buscarLibroId(id));
+        modelo.put("clientes",clientes);
         return "/devolverlibro";
     }
 
@@ -384,14 +386,22 @@ public class PortalControlador {
             modelo.put("exito", "Libro devuelto con exito");
             List<Libro> libros = libroRepositorio.findAll();
             modelo.put("libros", libros);
+            return "inicioprestamo.html";
         } catch (Excepciones ex) {
             modelo.put("error", "Error al devolver libro, la cantidad es mayor que los ejemplares originales");
+            List<Editorial> editoriales = editorialRepositorio.findAll();
+            modelo.put("editoriales", editoriales);
+            List<Autor> autores = autorRepositorio.findAll();
+            modelo.put("autores", autores);
             modelo.put("libros", libroServicio.buscarLibroId(id));
             return "/devolverlibro";
         }
-        return "inicioprestamo";
+        
     }
 
+    
+    //--------- BAJA y ALTAAAAA
+    
     @PreAuthorize("hasAnyRole('ROLE_USUARIO_REGISTRADO')")
     @GetMapping("/baja/{id}")
     public String baja(ModelMap modelo, @PathVariable String id) {
@@ -468,8 +478,8 @@ public class PortalControlador {
     public String clientes() {
         return "clientes.html";
     }
-    
-     @PreAuthorize("hasAnyRole('ROLE_USUARIO_REGISTRADO')")
+
+    @PreAuthorize("hasAnyRole('ROLE_USUARIO_REGISTRADO')")
     @GetMapping("/iniciocliente")
     public String iniciocliente(ModelMap modelo) {
         List<Cliente> clientes = clienteRepositorio.findAll();
@@ -479,7 +489,7 @@ public class PortalControlador {
 
     @PreAuthorize("hasAnyRole('ROLE_USUARIO_REGISTRADO')")
     @PostMapping("/clientes")
-    public String clientes(MultipartFile archivo, ModelMap modelo, @RequestParam String nombre, @RequestParam String apellido, @RequestParam Long documento, @RequestParam Long telefono ){
+    public String clientes(MultipartFile archivo, ModelMap modelo, @RequestParam String nombre, @RequestParam String apellido, @RequestParam Long documento, @RequestParam Long telefono) {
         String completo = nombre + " " + apellido;
         try {
             clienteServicio.crearCliente(archivo, nombre, documento, telefono);
@@ -492,12 +502,9 @@ public class PortalControlador {
             modelo.put("documento", documento);
             modelo.put("telefono", telefono);
 
-   
-
             return "clientes.html";
         }
 
     }
-    
-   
+
 }

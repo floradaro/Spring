@@ -109,10 +109,12 @@
                                             <div class="col-lg-6 order-lg-1">
                                                 <div class="p-5" th:each="libro : ${libros}">
                                                     <h2 class="display-8">Préstamo de Libros </h2>
-                                                    <form th:href="@{/prestamolibro/__${libro.id}__}" method="POST">
+                                                    
+                                                    <form th:href="@{/prestarlibro/__${libro.titulo}__}" method="POST">
+                                              
                                                         <p th:if="${error != null}" th:text="${error}" style="color:red"></p>
                                                         <p th:if="${exito != null}" th:text="${exito}" style="color:green"></p>
-                                                        <input hidden th:value=${id} name="id">
+                                                        <input hidden th:value=${titulo} name="titulo">
 
                                                             <label>Titulo</label><input th:value="${libro.titulo}" type="text" class="form-control" name="titulo" aria-label="titulo"
                                                                                         aria-describedby="basic-addon1" disabled>
@@ -124,8 +126,7 @@
                                                                                                         aria-describedby="basic-addon1" disabled> 
                                                                             <label>Restantes</label><input th:value="${libro.ejemplaresRestantes}" type="number" class="form-control" aria-label="ejemplares"
                                                                                                            aria-describedby="basic-addon1" disabled> 
-                                                                                <label>Prestar</label><input th:value="0" name="ejemplaresPresta" type="number" class="form-control" aria-label="editorial"
-                                                                                                             aria-describedby="basic-addon1">  
+                                                                                
                                                                                     <label>Cliente</label>
                                                                                     <select class="form-control" name="idcliente">
                                                                                         <option th:each="cliente : ${clientes}" th:value="${cliente.id}" th:text="${cliente.nombre}">

@@ -1,13 +1,18 @@
 package com.libreria.libreria.servicios;
 
 import com.libreria.libreria.entidades.Autor;
+import com.libreria.libreria.entidades.Cliente;
 import com.libreria.libreria.entidades.Editorial;
 import com.libreria.libreria.entidades.Foto;
 import com.libreria.libreria.entidades.Libro;
+import com.libreria.libreria.entidades.Prestamo;
 import com.libreria.libreria.excepciones.Excepciones;
 import com.libreria.libreria.repositorios.AutorRepositorio;
+import com.libreria.libreria.repositorios.ClienteRepositorio;
 import com.libreria.libreria.repositorios.EditorialRepositorio;
 import com.libreria.libreria.repositorios.LibroRepositorio;
+import com.libreria.libreria.repositorios.PrestamoRepositorio;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +32,13 @@ public class LibroServicio {
     private EditorialRepositorio editorialRepositorio;
     @Autowired
     private FotoServicio fotoServicio;
+    @Autowired
+    private ClienteRepositorio clienteRepositorio;
+    @Autowired
+    private PrestamoServicio prestamoServicio;
+    @Autowired
+    private ClienteServicio clienteServicio;
+    
 
     //----------CREAR lIBRO-----------
     
@@ -154,6 +166,13 @@ public class LibroServicio {
             throw new Excepciones("El titulo del libro no puede ser nulo");
         }
     }
+       
+    private void validarPrestamoId(String idCliente) throws Excepciones {
+        
+        if (idCliente == null || idCliente.isEmpty()) {
+            throw new Excepciones("El nombre del cliente no puede ser nulo");
+        }
+    }
 
     //----------ALTA Y BAJA----------
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = {Exception.class})
@@ -245,29 +264,77 @@ public class LibroServicio {
     }
 
     //----------------PRESTAMOS-----------------------
+    
     @Transactional
-    public void prestarLibro(String idLibro, Integer ejemplaresPrestados) throws Excepciones {
+    public void prestarLibro(String idLibro,String idCliente) throws Excepciones {
+        Integer ejemplaresPresta = 1;
         validarLibroId(idLibro);
-        validarEjemplaresPrestados(ejemplaresPrestados);
 
         Libro libro = buscarLibroId(idLibro);
+        Cliente cliente = clienteServicio.buscarClienteId(idCliente);
+        libro.setCliente(cliente);
 
         if (libro != null) {
             if (libro.getEjemplaresRestantes() <= 0) {
                 throw new Excepciones("No quedan libros para prestar");
-            } else {
-                if (ejemplaresPrestados < libro.getEjemplaresRestantes()) {
-
-                    libro.setEjemplaresRestantes(libro.getEjemplaresRestantes() - ejemplaresPrestados);
-                    libro.setEjemplaresPrestados(libro.getEjemplaresPrestados() + ejemplaresPrestados);
-                } else {
-                    throw new Excepciones("No hay suficientes libros para prestar");
-                }
             }
-            
-            libroRepositorio.save(libro);
+            if (ejemplaresPresta <= libro.getEjemplaresRestantes()) {
+                libro.setEjemplaresRestantes(libro.getEjemplaresRestantes() - ejemplaresPresta);
+                libro.setEjemplaresPrestados(libro.getEjemplaresPrestados() + ejemplaresPresta);
+            } else {
+                throw new Excepciones("No hay suficientes libros para prestar");
+            }
         }
+        libroRepositorio.save(libro);
     }
+    
+    
+    
+    
+//    @Transactional
+//    public void crearPrestamo(String idLibro, String idCliente, Integer ejemplaresPrestados) throws Excepciones {
+//
+//        Libro libro = libroRepositorio.findById(idLibro).get();
+//        Cliente cliente = clienteRepositorio.findById(idCliente).get();
+//        
+//        validarPrestamoId(idCliente);
+//        
+//        Prestamo prestamo = new Prestamo();
+//        
+//        prestamo.setFechaPrestamo(new Date());
+//        prestamo.setFechaDevolucion(null);
+//        prestamo.setAlta(true);
+//        prestamo.setLibro(libro);
+//        prestamo.setCliente(cliente);
+//       
+//        prestamoRepositorio.save(prestamo);
+//    }
+    
+//    @Transactional
+//    public void prestarLibro(String idLibro, Integer ejemplaresPrestados) throws Excepciones {
+//          
+//        validarLibroId(idLibro);
+//        validarEjemplaresPrestados(ejemplaresPrestados);
+//
+//        Libro libro = buscarLibroId(idLibro);
+//
+//        if (libro != null) {
+//            if (libro.getEjemplaresRestantes() <= 0) {
+//                throw new Excepciones("No quedan libros para prestar");
+//            } else {
+//                if (ejemplaresPrestados < libro.getEjemplaresRestantes()) {
+//
+//                    libro.setEjemplaresRestantes(libro.getEjemplaresRestantes() - ejemplaresPrestados);
+//                    libro.setEjemplaresPrestados(libro.getEjemplaresPrestados() + ejemplaresPrestados);
+//                } else {
+//                    throw new Excepciones("No hay suficientes libros para prestar");
+//                }
+//            }
+//            
+//            libroRepositorio.save(libro);
+//        }
+//    }
+    
     //----------------DEVOLUCIONES-----------------------
 
     @Transactional
@@ -286,6 +353,8 @@ public class LibroServicio {
                 throw new Excepciones("Se estan devolviendo mas libros que los prestados");
             }
         }
+        
+         libro.setCliente(null);
         libroRepositorio.save(libro);
     }
 }

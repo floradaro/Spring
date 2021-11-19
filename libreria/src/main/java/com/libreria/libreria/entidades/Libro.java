@@ -143,4 +143,8 @@ public class Libro {
     public String toString() {
         return "Libro{" + "id=" + id + ", isbn=" + isbn + ", titulo=" + titulo + ", anio=" + anio + ", ejemplares=" + ejemplares + ", ejemplaresPrestados=" + ejemplaresPrestados + ", ejemplaresRestantes=" + ejemplaresRestantes + ", alta=" + alta + ", autor=" + autor + ", editorial=" + editorial + ", cliente=" + cliente + ", foto=" + foto + '}';
     }
+
+  
+
+   
 }
